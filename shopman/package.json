@@ -1,0 +1,9 @@
+{
+  "name": "shopman-presentation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tầng giao diện JSP ShopMan, dữ liệu giả cho hai module của báo cáo",
+  "type": "module",
+  "scripts": { "start": "node preview.mjs", "check": "node scripts/check.mjs" },
+  "engines": { "node": ">=18" }
+}

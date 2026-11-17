@@ -1,0 +1,28 @@
+@startuml
+title Search Product Module
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam state {
+  BackgroundColor white
+  BorderColor black
+  RoundCorner 15
+}
+
+[*] --> GDChinhKH : Bắt đầu
+
+
+state "Hiển thị GD chính KH" as GDChinhKH
+state "Hiển thị GD tìm kiếm\nsản phẩm" as GDTimSanPham
+state "Hiển thị GD chi tiết\nsản phẩm" as GDChiTietSanPham
+
+GDChinhKH --> GDTimSanPham : [chọn chức năng tìm kiếm sản phẩm]
+
+GDTimSanPham --> GDTimSanPham : [nhập từ khóa\nvà chọn tìm kiếm]
+
+GDTimSanPham --> GDChiTietSanPham : [chọn 1 sản phẩm]
+
+GDChiTietSanPham --> [*] : [kết thúc xem chi tiết]
+
+@enduml

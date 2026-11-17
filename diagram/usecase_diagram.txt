@@ -1,0 +1,110 @@
+@startuml
+left to right direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor black
+skinparam rectangleBorderColor black
+
+skinparam usecase {
+    BackgroundColor white
+    BorderColor black
+}
+skinparam actor {
+    BackgroundColor white
+    BorderColor black
+}
+
+' =========================
+' ACTORS
+' =========================
+actor "Member\n(Thành viên)" as Member
+actor "Customer\n(Khách hàng)" as Customer
+actor "Sales Staff\n(NV bán hàng)" as SalesStaff
+actor "Manager\n(NV quản lý)" as Manager
+
+Customer -u-|> Member
+SalesStaff -u-|> Member
+Manager -u-|> Member
+
+rectangle "ShopMan System" {
+
+    ' Nhóm Tài khoản chung
+    together {
+        usecase "Login4\n(Đăng nhập)" as UC_Login
+        usecase "Logout4\n(Đăng xuất)" as UC_Logout
+        usecase "ChangePassword4\n(Đổi mật khẩu)" as UC_ChangePassword
+    }
+
+    ' Nhóm Khách hàng
+    together {
+        usecase "RegisterMember4\n(Đăng ký TV)" as UC_Register
+        usecase "SearchProduct4\n(Tìm kiếm mặt hàng)" as UC_SearchProduct
+        usecase "ViewProductDetail4\n(Xem chi tiết MH)" as UC_ViewProductDetail
+        usecase "PlaceOrder4\n(Đặt mua hàng)" as UC_PlaceOrder
+        usecase "TrackOrderStatus4\n(Theo dõi hóa đơn)" as UC_TrackOrder
+    }
+
+    ' Nhóm Bán hàng
+    together {
+        usecase "ReviewOrder4\n(Duyệt hóa đơn)" as UC_ReviewOrder
+        usecase "PackOrder4\n(Đóng gói hàng)" as UC_PackOrder
+        usecase "HandOverToDeliveryStaff4\n(Bàn giao hàng)" as UC_HandOver
+    }
+
+    ' Nhóm Quản lý
+    together {
+        usecase "ManageProduct4\n(Quản lý hàng hóa)" as UC_ManageProduct
+        usecase "ProcessInventoryImport4\n(Nhập hàng)" as UC_Import
+        usecase "ManageSupplier4\n(Quản lý NCC)" as UC_ManageSupplier
+    }
+
+    ' Nhóm Thống kê - Báo cáo
+    together {
+        usecase "ViewStatistics4\n(Xem thống kê)" as UC_Statistics
+        usecase "ViewImportStatistics4\n(TK hàng nhập)" as UC_ImportStatistics
+        usecase "ViewSalesStatistics4\n(TK hàng xuất)" as UC_SalesStatistics
+        usecase "ViewSupplierStatistics4\n(TK nhà cung cấp)" as UC_SupplierStatistics
+        usecase "ViewCustomerRevenueStatistics4\n(TK KH theo DT)" as UC_CustomerRevenue
+        usecase "ViewCustomerPurchaseHistory4\n(Lịch sử mua hàng)" as UC_CustomerHistory
+        usecase "ViewOrderDetail4\n(Chi tiết hóa đơn)" as UC_OrderDetail
+    }
+}
+
+' =====================================================
+' RELATIONSHIPS
+' =====================================================
+
+Member --> UC_Login
+Member --> UC_Logout
+Member --> UC_ChangePassword
+
+Customer --> UC_Register
+Customer --> UC_SearchProduct
+Customer --> UC_PlaceOrder
+Customer --> UC_TrackOrder
+UC_ViewProductDetail .u.> UC_SearchProduct : <<extend>>
+
+SalesStaff --> UC_ReviewOrder
+SalesStaff --> UC_PackOrder
+SalesStaff --> UC_HandOver
+
+Manager --> UC_ManageProduct
+Manager --> UC_Import
+Manager --> UC_ManageSupplier
+Manager --> UC_Statistics
+
+' Điều hướng Kế thừa thống kê để co cụm xung quanh UC_Statistics
+UC_ImportStatistics -u-|> UC_Statistics
+UC_SalesStatistics -u-|> UC_Statistics
+UC_CustomerRevenue -l-|> UC_Statistics
+UC_SupplierStatistics -d-|> UC_Statistics
+
+' Điều hướng Extend thống kê theo đường thẳng đứng
+UC_CustomerHistory .u.> UC_CustomerRevenue : <<extend>>
+UC_OrderDetail .u.> UC_CustomerHistory : <<extend>>
+
+@enduml

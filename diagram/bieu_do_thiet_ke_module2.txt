@@ -1,0 +1,247 @@
+@startuml
+top to bottom direction
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 15
+skinparam ranksep 25
+skinparam padding 2
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+skinparam class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+hide circle
+hide empty methods
+
+' =====================
+' CÁC TRANG GIAO DIỆN
+' =====================
+
+together {
+  class "gdChinhQL4.jsp" as GDChinhQL4 {
+    - subXemThongKe : Link
+    - nv : Manager4
+  }
+
+  class "gdChonTK4.jsp" as GDChonTK4 {
+    - outLoaiThongKe : Select
+    - subTKKhachHang : Submit
+    - nv : Manager4
+  }
+}
+
+together {
+  class "gdTKKhachHang4.jsp" as GDTKKhachHang4 {
+    - inNgayBatDau : DateInput
+    - inNgayKetThuc : DateInput
+    - subXemThongKe : Submit
+    - outDanhSachKhachHang : Table
+    - subChonKhachHang : Link
+    - outThongBao : String
+    - listKhachHang :\n  TKKhachHangTheoDoanhThu4[]
+    - nv : Manager4
+  }
+
+  class "gdLichSuMuaHang4.jsp" as GDLichSuMuaHang4 {
+    - outThongTinKhachHang : Customer4
+    - outDanhSachHoaDon : Table
+    - subChonHoaDon : Link
+    - subQuayLai : Link
+    - outThongBao : String
+    - listHoaDon : TKHoaDon4[]
+    - customerId : int
+    - ngayBatDau : LocalDate
+    - ngayKetThuc : LocalDate
+    - nv : Manager4
+  }
+}
+
+class "gdChiTietHoaDon4.jsp" as GDChiTietHoaDon4 {
+  - outThongTinHoaDon : SalesOrder4
+  - outDanhSachChiTiet : Table
+  - outTongTien : BigDecimal
+  - subQuayLai : Link
+  - listChiTiet : SalesOrderDetail4[]
+  - orderId : int
+  - customerId : int
+  - ngayBatDau : LocalDate
+  - ngayKetThuc : LocalDate
+  - nv : Manager4
+}
+
+' =====================
+' CÁC LỚP DAO
+' =====================
+
+class DAO4 {
+  - con : Connection
+  --
+  + DAO4()
+}
+
+together {
+  class TKKhachHangDAO4 {
+    + TKKhachHangDAO4()
+    + getKhachHangTheoDoanhThu(\n  ngayBatDau : LocalDate,\n  ngayKetThuc : LocalDate)\n  : TKKhachHangTheoDoanhThu4[]
+  }
+
+  class TKHoaDonDAO4 {
+    + TKHoaDonDAO4()
+    + getHoaDonCuaKhachHang(\n  customerId : int,\n  ngayBatDau : LocalDate,\n  ngayKetThuc : LocalDate)\n  : TKHoaDon4[]
+  }
+}
+
+together {
+  class SalesOrderDAO4 {
+    + SalesOrderDAO4()
+    + getHoaDonTrongKy(\n  orderId : int, customerId : int,\n  ngayBatDau : LocalDate,\n  ngayKetThuc : LocalDate)\n  : SalesOrder4
+  }
+
+  class SalesOrderDetailDAO4 {
+    + SalesOrderDetailDAO4()
+    + getChiTietHoaDon(orderId : int)\n  : SalesOrderDetail4[]
+  }
+}
+
+' =====================
+' CÁC LỚP THỐNG KÊ
+' =====================
+
+class TKKhachHangTheoDoanhThu4 {
+  - /tongDoanhThu : BigDecimal
+  - /soHoaDon : int
+}
+
+class TKHoaDon4
+
+' =====================
+' CÁC LỚP THỰC THỂ
+' =====================
+
+class Member4 {
+  - id : int
+  - username : String
+  - password : String
+  - fullName : String
+  - dateOfBirth : LocalDate
+  - address : String
+  - phoneNumber : String
+  - email : String
+  - role : String
+  - note : String
+}
+
+together {
+  class Manager4 {
+    - employeeCode : String
+    - position : String
+  }
+
+  class Customer4 {
+    - customerCode : String
+    - defaultShippingAddress : String
+    - loyaltyPoints : int
+  }
+
+  class SalesStaff4 {
+    - employeeCode : String
+    - workShift : String
+  }
+}
+
+class SalesOrder4 {
+  - id : int
+  - orderCode : String
+  - orderDate : LocalDateTime
+  - status : String
+  - totalAmount : BigDecimal
+  - shippingAddress : String
+  - customer : Customer4
+  - salesStaff : SalesStaff4
+  - details : SalesOrderDetail4[]
+}
+
+class SalesOrderDetail4 {
+  - id : int
+  - quantity : int
+  - unitPrice : BigDecimal
+  - /amount : BigDecimal
+  - product : Product4
+}
+
+class Product4 {
+  - id : int
+  - productCode : String
+  - productName : String
+  - sellingPrice : BigDecimal
+  - stockQuantity : int
+  - description : String
+  - imageUrl : String
+  - unit : String
+}
+
+' =====================
+' QUAN HỆ GIAO DIỆN
+' =====================
+
+GDChinhQL4 -right- GDChonTK4
+GDChonTK4 -down- GDTKKhachHang4
+GDTKKhachHang4 -right- GDLichSuMuaHang4
+GDLichSuMuaHang4 -down- GDChiTietHoaDon4
+
+' Giao diện sử dụng DAO
+GDTKKhachHang4 -- TKKhachHangDAO4
+GDLichSuMuaHang4 -- TKHoaDonDAO4
+GDChiTietHoaDon4 -- SalesOrderDAO4
+GDChiTietHoaDon4 -- SalesOrderDetailDAO4
+
+' Kế thừa DAO
+DAO4 <|-- TKKhachHangDAO4
+DAO4 <|-- TKHoaDonDAO4
+DAO4 <|-- SalesOrderDAO4
+DAO4 <|-- SalesOrderDetailDAO4
+
+' DAO và thực thể trả về
+TKKhachHangDAO4 -- TKKhachHangTheoDoanhThu4
+TKHoaDonDAO4 -- TKHoaDon4
+SalesOrderDAO4 -- SalesOrder4
+SalesOrderDetailDAO4 -- SalesOrderDetail4
+
+' Kế thừa lớp thống kê
+Customer4 <|-- TKKhachHangTheoDoanhThu4
+SalesOrder4 <|-- TKHoaDon4
+
+' Kế thừa thành viên
+Member4 <|-- Manager4
+Member4 <|-- Customer4
+Member4 <|-- SalesStaff4
+
+' Quan hệ nghiệp vụ
+Customer4 "1" -- "0..*" SalesOrder4
+SalesStaff4 "0..1" -- "0..*" SalesOrder4
+SalesOrder4 "1" *-- "1..*" SalesOrderDetail4
+SalesOrderDetail4 "0..*" -- "1" Product4
+
+' =====================
+' CĂN CHỈNH BỐ CỤC
+' =====================
+
+GDChinhQL4 -[hidden]down- GDTKKhachHang4
+
+TKKhachHangDAO4 -[hidden]right- TKHoaDonDAO4
+TKKhachHangDAO4 -[hidden]down- SalesOrderDAO4
+TKHoaDonDAO4 -[hidden]down- SalesOrderDetailDAO4
+SalesOrderDAO4 -[hidden]right- SalesOrderDetailDAO4
+
+Manager4 -[hidden]right- Customer4
+Customer4 -[hidden]right- SalesStaff4
+
+@enduml

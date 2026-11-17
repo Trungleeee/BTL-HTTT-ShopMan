@@ -1,0 +1,31 @@
+@startuml
+top to bottom direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam usecaseBackgroundColor White
+
+actor "Member4\n(Thành viên)" as Member4
+actor "Manager4\n(Nhân viên quản lý)" as Manager4
+
+Manager4 --|> Member4
+
+rectangle "ShopMan - Customer Revenue Statistics Module " {
+    usecase "Login4\n(Đăng nhập)" as Login4
+
+    usecase "ViewCustomerRevenueStatistics4\n(Thống kê khách hàng\ntheo doanh thu)" as Revenue4
+
+    usecase "ViewCustomerPurchaseHistory4\n(Xem lịch sử mua hàng\ncủa khách hàng)" as History4
+
+    usecase "ViewOrderDetail4\n(Xem chi tiết hóa đơn)" as Detail4
+
+    Revenue4 ..> Login4 : <<include>>
+
+    History4 ..> Revenue4 : <<extend>>\n[Chọn khách hàng trong kết quả]
+    Detail4 ..> History4 : <<extend>>\n[Chọn hóa đơn trong lịch sử]
+}
+
+Member4 -- Login4
+Manager4 -- Revenue4
+
+@enduml

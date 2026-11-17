@@ -1,0 +1,75 @@
+@startuml
+
+left to right direction
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 65
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor black
+
+skinparam class {
+    BackgroundColor white
+    BorderColor black
+    FontColor black
+}
+
+hide circle
+hide empty methods
+
+' =========================
+' BOUNDARY CLASSES
+' =========================
+
+class CustomerHomeView4 {
+    - subSearchProducts
+}
+
+class ProductSearchView4{
+    - inKeyword
+    - inSortOrder
+    - outProductList
+    - outMessage
+    - subSearch
+    - subSelectProduct
+}
+
+class ProductDetailView4 {
+    - outProductDetails
+    - outMessage
+    - subBack
+}
+
+' =========================
+' ENTITY CLASSES
+' =========================
+
+class Product4 {
+    - productCode
+    - productName
+    - sellingPrice
+    - stockQuantity
+    - description
+    - imageUrl
+    - unit
+    --
+    + getProductsByKeyword(keyword)
+    + getProductDetails(product)
+}
+
+' =========================
+' ASSOCIATIONS
+' =========================
+
+CustomerHomeView4 -- ProductSearchView4
+ProductSearchView4 -- ProductDetailView4
+
+ProductSearchView4 -- Product4
+ProductDetailView4 -- Product4
+
+@enduml

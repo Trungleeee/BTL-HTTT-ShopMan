@@ -1,0 +1,104 @@
+@startuml
+
+scale max 1000*1350
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam nodesep 12
+skinparam ranksep 16
+skinparam roundcorner 15
+skinparam padding 4
+skinparam ArrowColor black
+
+skinparam activity {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  StartColor black
+  EndColor black
+}
+
+skinparam partition {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+' =========================
+' KHUNG XỬ LÝ CÁC TRANG JSP
+' =========================
+
+partition "Xử lý tại gdChinhQL4.jsp" {
+  "Nhận thông tin\nquản lý" as MAIN_RECEIVE -right-> "Hiển thị\ntrang chính" as MAIN_SHOW
+}
+
+partition "Xử lý tại gdChonTK4.jsp" {
+  "Nhận thông tin\nquản lý đang đăng nhập" as MENU_RECEIVE -right-> "Hiển thị các\nloại thống kê" as MENU_SHOW
+}
+
+partition "Xử lý tại gdTKKhachHang4.jsp" {
+  "Nhận thông tin\nquản lý và hiển thị bộ lọc" as TK_FORM -right->[nhập ngày, click xem] "Nhận\nkhoảng ngày" as TK_INPUT
+
+  TK_INPUT -right-> "Lấy thống kê\nkhách hàng" as TK_LOAD
+
+  "Nhận kết quả\nthống kê" as TK_RESULT -right-> "Hiển thị khách hàng\nvà doanh thu giảm dần" as TK_SHOW
+}
+
+partition "Xử lý tại gdLichSuMuaHang4.jsp" {
+  "Nhận customerId\nvà khoảng ngày" as HISTORY_RECEIVE -right-> "Lấy hóa đơn\ncủa khách hàng" as HISTORY_LOAD
+
+  "Nhận danh sách\nhóa đơn" as HISTORY_RESULT -right-> "Hiển thị\nlịch sử mua hàng" as HISTORY_SHOW
+}
+
+partition "Xử lý tại gdChiTietHoaDon4.jsp" {
+  "Nhận orderId, customerId\nvà khoảng ngày" as DETAIL_RECEIVE -right-> "Lấy thông tin\nhóa đơn trong kỳ" as ORDER_LOAD
+
+  "Nhận thông tin\nhóa đơn" as ORDER_RESULT -right-> "Lấy các\ndòng hàng" as LINES_LOAD
+
+  "Nhận danh sách\ndòng hàng" as LINES_RESULT -right-> "Hiển thị hóa đơn,\ndòng hàng và tổng tiền" as DETAIL_SHOW
+}
+
+' =========================
+' BẮT ĐẦU VÀ CHUYỂN TRANG
+' =========================
+
+(*) -down-> MAIN_RECEIVE
+
+MAIN_SHOW -down->[click Thống kê/Báo cáo] MENU_RECEIVE
+MENU_SHOW -down->[chọn thống kê khách hàng] TK_FORM
+TK_SHOW -down->[click khách hàng] HISTORY_RECEIVE
+HISTORY_SHOW -down->[click hóa đơn] DETAIL_RECEIVE
+
+' =========================
+' DAO NGOÀI CÁC KHUNG JSP
+' =========================
+
+TK_LOAD -down-> "TKKhachHangDAO4:\ngetKhachHangTheoDoanhThu(\nngayBatDau, ngayKetThuc)" as TK_DAO
+
+TK_DAO -down->[lấy xong dữ liệu] TK_RESULT
+
+HISTORY_LOAD -down-> "TKHoaDonDAO4:\ngetHoaDonCuaKhachHang(\ncustomerId, ngayBatDau, ngayKetThuc)" as HISTORY_DAO
+
+HISTORY_DAO -down->[lấy xong dữ liệu] HISTORY_RESULT
+
+ORDER_LOAD -down-> "SalesOrderDAO4:\ngetHoaDonTrongKy(orderId,\ncustomerId, ngayBatDau, ngayKetThuc)" as ORDER_DAO
+
+ORDER_DAO -down->[hóa đơn phù hợp] ORDER_RESULT
+
+LINES_LOAD -down-> "SalesOrderDetailDAO4:\ngetChiTietHoaDon(orderId)" as LINES_DAO
+
+LINES_DAO -down->[lấy xong dữ liệu] LINES_RESULT
+
+' =========================
+' QUAY LẠI VÀ KẾT THÚC
+' =========================
+
+TK_SHOW -left->[đổi khoảng ngày] TK_INPUT
+HISTORY_SHOW -left->[quay lại thống kê] TK_SHOW
+DETAIL_SHOW -left->[quay lại lịch sử] HISTORY_SHOW
+
+DETAIL_SHOW -down->[kết thúc xem] (*)
+
+@enduml

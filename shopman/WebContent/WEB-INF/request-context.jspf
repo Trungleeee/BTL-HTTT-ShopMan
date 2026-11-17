@@ -1,0 +1,100 @@
+<%@ page import="java.util.*,java.time.LocalDate" %>
+<%!
+private String smJson(Object value) {
+    if (value == null) return "null";
+    if (value instanceof Map) {
+        StringBuilder result = new StringBuilder("{");
+        for (Object entryObject : ((Map<?, ?>) value).entrySet()) {
+            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) entryObject;
+            if (result.length() > 1) result.append(',');
+            result.append(smJson(entry.getKey())).append(':').append(smJson(entry.getValue()));
+        }
+        return result.append('}').toString();
+    }
+    return "\"" + String.valueOf(value).replace("\\", "\\\\").replace("\"", "\\\"")
+        .replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t").replace("<", "\\u003c") + "\"";
+}
+%>
+<%
+request.setCharacterEncoding("UTF-8");
+response.setHeader("Cache-Control", "no-store");
+response.setHeader("Referrer-Policy", "no-referrer");
+response.setHeader("X-Content-Type-Options", "nosniff");
+String smPath = request.getRequestURI().substring(request.getContextPath().length());
+Map<String, String> smPaths = new LinkedHashMap<String, String>();
+smPaths.put("/dang-nhap", "login");
+smPaths.put("/cua-hang", "store");
+smPaths.put("/san-pham", "products");
+smPaths.put("/san-pham/chi-tiet", "product");
+smPaths.put("/quan-ly", "management");
+smPaths.put("/quan-ly/bao-cao", "reports");
+smPaths.put("/quan-ly/bao-cao/doanh-thu-khach-hang", "customerRevenue");
+smPaths.put("/quan-ly/khach-hang/lich-su-mua-hang", "purchaseHistory");
+smPaths.put("/quan-ly/hoa-don/chi-tiet", "invoice");
+String smName = smPaths.get(smPath);
+if (smName == null) {
+    String smFallback = smPath.contains("MatHang") || smPath.contains("ChinhKH") ? "/san-pham"
+        : smPath.contains("DangNhap") ? "/dang-nhap" : "/quan-ly/bao-cao";
+    response.sendRedirect(request.getContextPath() + smFallback);
+    return;
+}
+if ("GET".equals(request.getMethod())) {
+    boolean smHasId = false;
+    Enumeration<String> smQueryKeys = request.getParameterNames();
+    while (smQueryKeys.hasMoreElements()) {
+        String smKey = smQueryKeys.nextElement();
+        if (smKey.toLowerCase(Locale.ROOT).endsWith("id")) smHasId = true;
+    }
+    if (smHasId) { response.sendRedirect(request.getContextPath() + smPath); return; }
+}
+jakarta.servlet.http.HttpSession smSession = request.getSession(false);
+Map<String, String> smUser = smSession == null ? null : (Map<String, String>) smSession.getAttribute("shopmanUser");
+String smExpectedRole = Arrays.asList("store", "products", "product").contains(smName) ? "customer" : "login".equals(smName) ? null : "manager";
+if (smExpectedRole != null && (smUser == null || !smExpectedRole.equals(smUser.get("role")))) {
+    if ("POST".equals(request.getMethod())) response.sendError(403);
+    else response.sendRedirect(request.getContextPath() + "/dang-nhap");
+    return;
+}
+if ("POST".equals(request.getMethod())) {
+    java.net.URL smAddress = new java.net.URL(request.getRequestURL().toString());
+    String smOrigin = smAddress.getProtocol() + "://" + smAddress.getAuthority();
+    if (!smOrigin.equals(request.getHeader("Origin"))) { response.sendError(403); return; }
+    String smIdKey = "product".equals(smName) ? "productId" : "purchaseHistory".equals(smName) ? "customerId" : "invoice".equals(smName) ? "orderId" : null;
+    String smId = smIdKey == null ? null : request.getParameter(smIdKey);
+    if (smId == null || !smId.matches("[1-9][0-9]{0,8}")) { response.sendError(400, "Vui lòng chọn bản ghi từ danh sách."); return; }
+    Map<String, String> smSelection = new LinkedHashMap<String, String>();
+    smSelection.put(smIdKey, smId);
+    if ("product".equals(smName)) {
+        for (String smKey : Arrays.asList("tuKhoa", "categoryId", "sort", "view")) {
+            String smValue = request.getParameter(smKey);
+            if (smValue != null) smSelection.put(smKey, smValue.substring(0, Math.min(150, smValue.length())));
+        }
+    } else {
+        String smStart = request.getParameter("ngayBatDau"), smEnd = request.getParameter("ngayKetThuc");
+        if (smStart == null) smStart = "2026-09-01";
+        if (smEnd == null) smEnd = "2026-09-30";
+        try {
+            if (!smStart.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}") || !smEnd.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}") || LocalDate.parse(smStart).isAfter(LocalDate.parse(smEnd))) throw new IllegalArgumentException();
+        } catch (Exception smError) { response.sendError(400, "Khoảng ngày không hợp lệ."); return; }
+        smSelection.put("ngayBatDau", smStart);
+        smSelection.put("ngayKetThuc", smEnd);
+        if ("invoice".equals(smName)) {
+            Map<String, String> smParent = (Map<String, String>) smSession.getAttribute("shopman.purchaseHistory");
+            if (smParent == null || !Objects.equals(smParent.get("customerId"), request.getParameter("customerId"))
+                || !smStart.equals(smParent.get("ngayBatDau")) || !smEnd.equals(smParent.get("ngayKetThuc"))) {
+                response.sendError(400, "Vui lòng chọn hóa đơn từ lịch sử mua hàng hiện tại."); return;
+            }
+            smSelection.put("customerId", smParent.get("customerId"));
+        } else smSession.removeAttribute("shopman.invoice");
+    }
+    smSession.setAttribute("shopman." + smName, smSelection);
+    response.setStatus(303);
+    response.setHeader("Location", request.getContextPath() + smPath);
+    return;
+}
+Map<String, Object> smContext = new LinkedHashMap<String, Object>();
+smContext.put("user", smUser);
+Object smSelection = smSession == null ? null : smSession.getAttribute("shopman." + smName);
+smContext.put("selection", smSelection == null ? Collections.emptyMap() : smSelection);
+request.setAttribute("shopmanContext", smJson(smContext));
+%>

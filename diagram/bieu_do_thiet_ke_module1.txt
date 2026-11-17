@@ -1,0 +1,114 @@
+@startuml
+title Biểu đồ lớp thiết kế module tìm kiếm mặt hàng
+
+top to bottom direction
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 55
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+hide circle
+hide empty methods
+
+' =====================
+' CÁC TRANG GIAO DIỆN
+' =====================
+
+class "gdChinhKH4.jsp" as GDChinhKH4 {
+  - timKiemMatHang : Link
+  - kh : Customer4
+}
+
+class "gdTimKiemMatHang4.jsp" as GDTimKiemMatHang4 {
+  - inTuKhoa : Text
+  - subTimKiem : Submit
+  - outDanhSachMatHang : Table
+  - subChonMatHang : Link
+  - subVeTrangChu : Link
+  - outThongBao : String
+  - listMatHang : Product4[]
+  - kh : Customer4
+}
+
+class "gdChiTietMatHang4.jsp" as GDChiTietMatHang4 {
+  - outThongTinMatHang : Product4
+  - outHinhAnh : Image
+  - subQuayLai : Link
+  - productId : int
+  - tuKhoa : String
+  - kh : Customer4
+}
+
+' =====================
+' CÁC LỚP DAO
+' =====================
+
+class DAO4 {
+  - con : Connection
+  --
+  + DAO4()
+}
+
+class ProductDAO4 {
+  
+  + ProductDAO4()
+  + getMatHangTheoTen(tuKhoa : String) : Product4[]
+  + getMatHangTheoId(productId : int) : Product4
+}
+
+
+class Product4 {
+  - id : int
+  - productCode : String
+  - productName : String
+  - sellingPrice : BigDecimal
+  - stockQuantity : int
+  - description : String
+  - imageUrl : String
+  - unit : String
+  - category : Category4
+}
+
+class Category4 {
+  - id : int
+  - categoryCode : String
+  - categoryName : String
+  - description : String
+}
+
+' Điều hướng giữa các trang
+GDChinhKH4 -- GDTimKiemMatHang4
+GDTimKiemMatHang4 -- GDChiTietMatHang4
+
+' Các trang sử dụng DAO
+GDTimKiemMatHang4 -- ProductDAO4
+GDChiTietMatHang4 -- ProductDAO4
+
+' Kế thừa DAO
+DAO4 <|-- ProductDAO4
+
+' DAO và thực thể trả về
+ProductDAO4 -- Product4
+
+' Quan hệ thực thể
+Category4 "1" -- "0..*" Product4
+
+
+GDChinhKH4 -[hidden]right- GDTimKiemMatHang4
+GDTimKiemMatHang4 -[hidden]right- GDChiTietMatHang4
+
+ProductDAO4 -[hidden]right- DAO4
+Category4 -[hidden]right------------ Product4
+@enduml

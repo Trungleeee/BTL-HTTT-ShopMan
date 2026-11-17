@@ -1,0 +1,176 @@
+@startuml
+
+top to bottom direction
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 65
+skinparam ranksep 80
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor black
+skinparam classBorderColor black
+skinparam classBackgroundColor white
+
+hide circle
+hide methods
+
+' ===================================
+' 1. MEMBERS AND INHERITANCE
+' ===================================
+
+abstract class Member4 {
+    - id : int
+    - username : String
+    - password : String
+    - fullName : String
+    - dateOfBirth : LocalDate
+    - address : String
+    - phoneNumber : String
+    - email : String
+    - role : String
+    - note : String
+}
+
+class Manager4 {
+    - employeeCode : String
+    - position : String
+}
+
+class SalesStaff4 {
+    - employeeCode : String
+    - workShift : String
+}
+
+class Customer4 {
+    - customerCode : String
+    - defaultShippingAddress : String
+    - loyaltyPoints : int
+}
+
+' ===================================
+' 2. PRODUCTS AND SUPPLIERS
+' ===================================
+
+class Category4 {
+    - id : int
+    - categoryCode : String
+    - categoryName : String
+    - description : String
+}
+
+class Product4 {
+    - id : int
+    - productCode : String
+    - productName : String
+    - sellingPrice : BigDecimal
+    - stockQuantity : int
+    - description : String
+    - imageUrl : String
+    - unit : String
+    - category : Category4
+}
+
+class Supplier4 {
+    - id : int
+    - supplierCode : String
+    - supplierName : String
+    - address : String
+    - phoneNumber : String
+    - email : String
+    - note : String
+}
+
+' ===================================
+' 3. SHOPPING CART
+' ===================================
+
+class ShoppingCart4 {
+    - id : int
+    - cartCode : String
+    - customer : Customer4
+    - items : List<CartItem4>
+}
+
+class CartItem4 {
+    - id : int
+    - quantity : int
+    - product : Product4
+}
+
+' ===================================
+' 4. SALES ORDERS
+' ===================================
+
+class SalesOrder4 {
+    - id : int
+    - orderCode : String
+    - orderDate : LocalDateTime
+    - status : String
+    - shippingAddress : String
+    - /totalAmount : BigDecimal
+    - customer : Customer4
+    - approvedBy : SalesStaff4
+    - details : List<SalesOrderDetail4>
+}
+
+class SalesOrderDetail4 {
+    - id : int
+    - quantity : int
+    - unitPrice : BigDecimal
+    - /lineTotal : BigDecimal
+    - product : Product4
+}
+
+
+' ===================================
+' 5. IMPORT INVOICES
+' ===================================
+
+class ImportInvoice4 {
+    - id : int
+    - invoiceNumber : String
+    - importDate : LocalDateTime
+    - /totalAmount : BigDecimal
+    - supplier : Supplier4
+    - createdBy : Manager4
+    - details : List<ImportInvoiceDetail4>
+}
+
+class ImportInvoiceDetail4 {
+    - id : int
+    - quantity : int
+    - importPrice : BigDecimal
+    - /lineTotal : BigDecimal
+    - product : Product4
+}
+
+' KẾ THỪA: giữ mũi tên tam giác rỗng
+Member4 <|-- Manager4
+Member4 <|-- SalesStaff4
+Member4 <|-- Customer4
+
+' LIÊN KẾT THÔNG THƯỜNG: đường liền không mũi tên
+Product4 "0..*" -- "1" Category4
+ShoppingCart4 "1" -- "1" Customer4
+
+SalesOrder4 "0..*" -- "1" Customer4
+SalesOrder4 "0..*" -- "0..1" SalesStaff4
+
+ImportInvoice4 "0..*" -- "1" Supplier4
+ImportInvoice4 "0..*" -- "1" Manager4
+
+' HỢP THÀNH: hình thoi đặc ở phía chứa chi tiết
+ShoppingCart4 "1" *-- "0..*" CartItem4
+SalesOrder4 "1" *-- "1..*" SalesOrderDetail4
+ImportInvoice4 "1" *-- "1..*" ImportInvoiceDetail4
+
+' KẾT TẬP: hình thoi rỗng ở phía lớp chi tiết
+CartItem4 "0..*" o-- "1" Product4
+SalesOrderDetail4 "0..*" o-- "1" Product4
+ImportInvoiceDetail4 "0..*" o-- "1" Product4
+
+@enduml

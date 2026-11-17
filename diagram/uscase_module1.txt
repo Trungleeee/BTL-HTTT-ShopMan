@@ -1,0 +1,26 @@
+@startuml
+top to bottom direction
+
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam usecaseBackgroundColor White
+
+actor "Member4\n(Thành viên)" as Member4
+actor "Customer4\n(Khách hàng)" as Customer4
+
+Customer4 --|> Member4
+
+rectangle "ShopMan - Search Product Module" {
+    usecase "Login4\n(Đăng nhập)" as Login4
+    usecase "SearchProduct4\n(Tìm kiếm mặt hàng)" as SearchProduct4
+    usecase "ViewProductDetail4\n(Xem chi tiết mặt hàng)" as ViewProductDetail4
+
+    SearchProduct4 ..> Login4 : <<include>>
+    ViewProductDetail4 ..> SearchProduct4 : <<extend>>\n[Chọn mặt hàng trong kết quả]
+}
+
+Member4 -- Login4
+Customer4 -- SearchProduct4
+
+@enduml

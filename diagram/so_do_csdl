@@ -1,0 +1,217 @@
+@startuml
+
+top to bottom direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #FFD39B
+skinparam classHeaderBackgroundColor #EAB879
+skinparam classBorderColor #76664F
+skinparam classFontColor #222222
+skinparam classFontSize 13
+skinparam classFontStyle bold
+
+skinparam ArrowColor #777777
+skinparam ArrowThickness 1
+
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 65
+
+hide circle
+hide methods
+
+entity "tblMember4" as Member {
+    id : INT <<PK>>
+    --
+    tenDangNhap : VARCHAR(50) <<UQ>>
+    matKhauHash : VARCHAR(255)
+    hoTen : VARCHAR(100)
+    ngaySinh : DATE
+    diaChi : VARCHAR(255)
+    soDienThoai : VARCHAR(20)
+    email : VARCHAR(255)
+    vaiTro : VARCHAR(30)
+    ghiChu : TEXT
+}
+
+together {
+    entity "tblManager4" as Manager {
+        id : INT <<PK, FK>>
+        --
+        maNhanVien : VARCHAR(30) <<UQ>>
+        viTriCongViec : VARCHAR(100)
+    }
+
+    entity "tblSalesStaff4" as SalesStaff {
+        id : INT <<PK, FK>>
+        --
+        maNhanVien : VARCHAR(30) <<UQ>>
+        caLamViec : VARCHAR(50)
+    }
+
+    entity "tblDeliveryStaff4" as DeliveryStaff {
+        id : INT <<PK, FK>>
+        --
+        maNhanVien : VARCHAR(30) <<UQ>>
+    }
+
+    entity "tblCustomer4" as Customer {
+        id : INT <<PK, FK>>
+        --
+        maKhachHang : VARCHAR(30) <<UQ>>
+        diaChiGiaoHangMacDinh : VARCHAR(255)
+        diemTichLuy : INT
+    }
+}
+
+entity "tblCategory4" as Category {
+    id : INT <<PK>>
+    --
+    maDanhMuc : VARCHAR(30) <<UQ>>
+    tenDanhMuc : VARCHAR(100)
+    moTa : TEXT
+}
+
+entity "tblProduct4" as Product {
+    id : INT <<PK>>
+    --
+    categoryId : INT <<FK>>
+    maHang : VARCHAR(30) <<UQ>>
+    tenHang : VARCHAR(200)
+    donGiaBan : DECIMAL(18,2)
+    soLuongTonKho : INT
+    moTa : TEXT
+    hinhAnh : VARCHAR(500)
+    donViTinh : VARCHAR(30)
+}
+
+entity "tblSupplier4" as Supplier {
+    id : INT <<PK>>
+    --
+    maNhaCungCap : VARCHAR(30) <<UQ>>
+    tenNhaCungCap : VARCHAR(200)
+    diaChi : VARCHAR(255)
+    soDienThoai : VARCHAR(20)
+    email : VARCHAR(255)
+    ghiChu : TEXT
+}
+
+
+entity "tblShoppingCart4" as Cart {
+    id : INT <<PK>>
+    --
+    customerId : INT <<FK, UQ>>
+    maGioHang : VARCHAR(30) <<UQ>>
+}
+
+entity "tblCartItem4" as CartItem {
+    id : INT <<PK>>
+    --
+    cartId : INT <<FK>>
+    productId : INT <<FK>>
+    soLuong : INT
+}
+
+entity "tblSalesOrder4" as SalesOrder {
+    id : INT <<PK>>
+    --
+    customerId : INT <<FK>>
+    salesStaffId : INT <<FK, NULL>>
+    deliveryStaffId : INT <<FK, NULL>>
+    maHoaDon : VARCHAR(30) <<UQ>>
+    ngayDat : DATETIME
+    trangThai : VARCHAR(30)
+    diaChiGiaoHang : VARCHAR(255)
+}
+
+entity "tblSalesOrderDetail4" as SalesDetail {
+    id : INT <<PK>>
+    --
+    salesOrderId : INT <<FK>>
+    productId : INT <<FK>>
+    soLuong : INT
+    donGia : DECIMAL(18,2)
+}
+
+
+
+entity "tblImportInvoice4" as ImportInvoice {
+    id : INT <<PK>>
+    --
+    supplierId : INT <<FK>>
+    managerId : INT <<FK>>
+    soHoaDonNhap : VARCHAR(30) <<UQ>>
+    ngayNhap : DATETIME
+}
+
+entity "tblImportInvoiceDetail4" as ImportDetail {
+    id : INT <<PK>>
+    --
+    importInvoiceId : INT <<FK>>
+    productId : INT <<FK>>
+    soLuongNhap : INT
+    donGiaNhap : DECIMAL(18,2)
+}
+
+
+
+Member ||--o| Manager
+Member ||--o| SalesStaff
+Member ||--o| DeliveryStaff
+Member ||--o| Customer
+
+' Danh muc - san pham
+' Product.categoryId -> Category.id
+
+Category ||..o{ Product
+
+' Khach hang - gio hang
+' Cart.customerId -> Customer.id
+
+Customer ||..|| Cart
+
+' Chi tiet gio hang
+' CartItem.cartId -> Cart.id
+' CartItem.productId -> Product.id
+
+Cart ||..o{ CartItem
+Product ||..o{ CartItem
+
+' Hoa don ban
+' SalesOrder.customerId -> Customer.id
+' SalesOrder.salesStaffId -> SalesStaff.id
+' SalesOrder.deliveryStaffId -> DeliveryStaff.id
+
+Customer ||..o{ SalesOrder
+SalesStaff |o..o{ SalesOrder
+DeliveryStaff |o..o{ SalesOrder
+
+' Chi tiet hoa don ban
+' SalesDetail.salesOrderId -> SalesOrder.id
+' SalesDetail.productId -> Product.id
+
+SalesOrder ||..|{ SalesDetail
+Product ||..o{ SalesDetail
+
+' Hoa don nhap
+' ImportInvoice.supplierId -> Supplier.id
+' ImportInvoice.managerId -> Manager.id
+
+Supplier ||..o{ ImportInvoice
+Manager ||..o{ ImportInvoice
+
+' Chi tiet hoa don nhap
+' ImportDetail.importInvoiceId -> ImportInvoice.id
+' ImportDetail.productId -> Product.id
+
+ImportInvoice ||..|{ ImportDetail
+Product ||..o{ ImportDetail
+
+@enduml

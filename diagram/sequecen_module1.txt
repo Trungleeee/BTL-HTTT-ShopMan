@@ -1,0 +1,65 @@
+@startuml
+skinparam Style strictuml
+skinparam SequenceMessageAlignment center
+skinparam monochrome true
+skinparam lifelineStrategy solid
+hide footbox
+autonumber "0:"
+
+actor "Khach hang" as KH
+boundary "gdChinhKH4.jsp" as GDChinh
+boundary "gdTimKiemMatHang4.jsp" as GDTim
+boundary "gdChiTietMatHang4.jsp" as GDChiTiet
+control "ProductDAO4" as PDAO
+entity "Product4" as Prod
+
+activate KH
+activate GDChinh
+
+KH -> GDChinh : chon tim kiem mat hang
+GDChinh -> GDTim : goi
+activate GDTim
+GDTim --> KH : hien thi
+
+KH -> GDTim : nhap tu khoa + click tim kiem
+GDTim -> PDAO : goi
+activate PDAO
+PDAO -> PDAO : getMatHangTheoTen()
+activate PDAO
+PDAO -> Prod : goi
+activate Prod
+Prod -> Prod : Product4()
+activate Prod
+deactivate Prod
+Prod --> PDAO : tra ve
+deactivate Prod
+deactivate PDAO
+PDAO --> GDTim : tra ve
+deactivate PDAO
+
+GDTim --> KH : hien thi
+
+KH -> GDTim : click 1 mat hang
+GDTim -> GDChiTiet : goi
+activate GDChiTiet
+GDChiTiet -> PDAO : goi
+activate PDAO
+PDAO -> PDAO : getMatHangTheoId()
+activate PDAO
+PDAO -> Prod : goi
+activate Prod
+Prod -> Prod : Product4()
+activate Prod
+deactivate Prod
+Prod --> PDAO : tra ve
+deactivate Prod
+deactivate PDAO
+PDAO --> GDChiTiet : tra ve
+deactivate PDAO
+
+GDChiTiet --> KH : hien thi
+deactivate GDChiTiet
+deactivate GDTim
+deactivate GDChinh
+deactivate KH
+@enduml

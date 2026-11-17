@@ -1,0 +1,178 @@
+@startuml
+title Customer Revenue Statistics Module
+
+top to bottom direction
+skinparam nodesep 25
+skinparam ranksep 35
+skinparam defaultFontSize 12
+skinparam padding 3
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 15
+skinparam ranksep 65
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam ArrowColor black
+skinparam padding 3
+
+skinparam class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+hide circle
+hide empty methods
+
+class ManagerHomeView4 {
+  - outStoreOverview
+  - outMonthlyRevenueChart
+  - outMessage
+  - subViewStatistics
+}
+
+class StatisticsSelectionView4 {
+  - outStatisticsTypeList
+  - subCustomerRevenueStatistics
+}
+
+class CustomerRevenueStatisticsView4 {
+  - inStartDate
+  - inEndDate
+  - outCustomerRevenueList
+  - outMessage
+  - subViewStatistics
+  - subToggleRevenueSort
+  - subSelectCustomer
+  - subBack
+}
+
+class CustomerPurchaseHistoryView4 {
+  - outCustomerDetails
+  - outDateRange
+  - outOrderList
+  - outMessage
+  - subSelectOrder
+  - subBack
+}
+
+class SalesOrderDetailView4 {
+  - outOrderInformation
+  - outOrderDetailList
+  - outLineCount
+  - outTotalQuantity
+  - outTotalAmount
+  - outMessage
+  - subBack
+}
+
+abstract class Member4 {
+  - username
+  - password
+  - fullName
+  - dateOfBirth
+  - address
+  - phoneNumber
+  - email
+  - role
+  - note
+}
+
+class Customer4 {
+  - customerCode
+  - defaultShippingAddress
+  - loyaltyPoints
+  --
+  + getCustomerRevenueStatistics(startDate, endDate)
+}
+
+class SalesStaff4 {
+  - employeeCode
+  - workShift
+}
+
+class SalesOrder4 {
+  - orderCode
+  - orderDate
+  - status
+  - totalAmount
+  - shippingAddress
+  --
+  + getStoreOverview()
+  + getOrdersByCustomer(customer, startDate, endDate)
+}
+
+class SalesOrderDetail4 {
+  - detailCode
+  - quantity
+  - unitPrice
+  - lineTotal
+  --
+  + getOrderDetails(salesOrder)
+}
+
+class Product4 {
+  - productCode
+  - productName
+  - sellingPrice
+  - stockQuantity
+  - description
+  - imageUrl
+  - unit
+}
+
+class Category4 {
+  - categoryCode
+  - categoryName
+  - description
+}
+
+class CustomerRevenueStatistics4 {
+  - /totalRevenue
+  - /orderCount
+}
+
+class StoreOverviewStatistics4 {
+  - /totalRevenue
+  - /totalOrderCount
+  - /shippingOrderCount
+  - /cancelledOrderCount
+  - /monthlyRevenue
+}
+
+ManagerHomeView4 -down- StatisticsSelectionView4
+StatisticsSelectionView4 -down- CustomerRevenueStatisticsView4
+CustomerRevenueStatisticsView4 -down- CustomerPurchaseHistoryView4
+CustomerPurchaseHistoryView4 -down- SalesOrderDetailView4
+
+ManagerHomeView4 -- SalesOrder4
+ManagerHomeView4 -- StoreOverviewStatistics4
+
+CustomerRevenueStatisticsView4 -- Customer4
+CustomerRevenueStatisticsView4 -- CustomerRevenueStatistics4
+
+CustomerPurchaseHistoryView4 -- Customer4
+CustomerPurchaseHistoryView4 -- SalesOrder4
+
+SalesOrderDetailView4 -- SalesOrder4
+SalesOrderDetailView4 -- SalesOrderDetail4
+
+Member4 <|-- Customer4
+Member4 <|-- SalesStaff4
+Customer4 <|-- CustomerRevenueStatistics4
+
+Customer4 "1" -- "0..*" SalesOrder4
+SalesStaff4 "0..1" -- "0..*" SalesOrder4
+SalesOrder4 "1" *-- "1..*" SalesOrderDetail4
+SalesOrderDetail4 "0..*" -- "1" Product4
+Category4 "1" -- "0..*" Product4
+
+CustomerRevenueStatisticsView4 -[hidden]down- CustomerRevenueStatistics4
+CustomerRevenueStatistics4 -[hidden]left- CustomerRevenueStatistics4
+
+CustomerPurchaseHistoryView4 -[hidden]left- SalesOrder4
+
+
+@enduml

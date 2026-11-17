@@ -1,0 +1,45 @@
+@startuml
+skinparam PackageStyle folder
+skinparam ClassAttributeIconSize 0
+
+package "view" {
+    package "view.customer" {
+        class "gdChinhKH4.jsp"
+        class "gdTimKiemMatHang4.jsp"
+        class "gdChiTietMatHang4.jsp"
+    }
+    package "view.manager" {
+        class "gdChinhQL4.jsp"
+        class "gdChonTK4.jsp"
+        class "gdTKKhachHang4.jsp"
+        class "gdLichSuMuaHang4.jsp"
+        class "gdChiTietHoaDon4.jsp"
+    }
+}
+
+package "dao" {
+    class DAO4
+    class ProductDAO4
+    class TKKhachHangDAO4
+    class TKHoaDonDAO4
+    class SalesOrderDAO4
+    class SalesOrderDetailDAO4
+}
+
+package "model" {
+    class Member4
+    class Customer4
+    class Manager4
+    class SalesStaff4
+    class Category4
+    class Product4
+    class SalesOrder4
+    class SalesOrderDetail4
+    class TKKhachHangTheoDoanhThu4
+    class TKHoaDon4
+}
+
+"view" ..> "dao" : <<use>>
+"view" ..> "model" : <<use>>
+"dao" ..> "model" : <<use>>
+@enduml

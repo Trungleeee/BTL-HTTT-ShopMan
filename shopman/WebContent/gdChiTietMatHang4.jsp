@@ -1,0 +1,13 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ include file="WEB-INF/request-context.jspf" %>
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><base href="<%= request.getContextPath() %>/"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chi tiết mặt hàng • ShopMan</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/style.css"></head>
+<body data-role="customer"><div id="shell"></div><template id="page"><div id="product-detail" aria-live="polite"></div></template><script src="assets/mock-data.js"></script><script type="application/json" id="shopman-context"><%= request.getAttribute("shopmanContext") %></script><script src="assets/routes.js"></script><script src="assets/ui.js"></script><script>
+(async () => { if (UI.auth.user?.role !== 'customer') return; try {
+  const back = UI.url('products', { tuKhoa: UI.params.get('tuKhoa') || '', sort: UI.params.get('sort') || 'default' });
+  if (!UI.params.get('productId')) { document.querySelector('#product-detail').innerHTML = UI.empty('Chưa chọn mặt hàng', 'Vui lòng chọn mặt hàng từ danh sách tìm kiếm.', `<a class="btn" href="${UI.esc(back)}">Quay lại tìm kiếm</a>`); return; }
+  const p = await ShopData.getMatHangTheoId(UI.params.get('productId'));
+  if (!p) { document.querySelector('#product-detail').innerHTML = UI.empty('Không tìm thấy mặt hàng', 'Mặt hàng không tồn tại hoặc đường dẫn chưa chính xác.', `<a class="btn" href="${UI.esc(back)}">Quay lại tìm kiếm</a>`); return; }
+  document.title = p.productName + ' • ShopMan';
+  document.querySelector('#product-detail').innerHTML = `<div class="page-heading"><span class="muted" style="font-size:13px">Mã mặt hàng: ${UI.esc(p.productCode)}</span><a class="btn secondary" href="${UI.esc(back)}">Quay lại kết quả tìm kiếm</a></div><article class="detail-grid"><div class="detail-art"><img src="${UI.esc(p.imageUrl)}" alt="${UI.esc(p.productName)}"></div><div class="detail-copy"><h1>${UI.esc(p.productName)}</h1><span class="badge ${p.stockQuantity ? 'success' : 'sold'}">${p.stockQuantity ? 'Còn hàng' : 'Tạm hết hàng'}</span><div class="detail-price">${UI.money(p.sellingPrice)} <small class="muted" style="font-weight:400">/ ${UI.esc(p.unit.toLowerCase())}</small></div><p>${UI.esc(p.description)}</p><dl class="spec-list"><div><dt>Mã mặt hàng</dt><dd>${UI.esc(p.productCode)}</dd></div><div><dt>Đơn vị tính</dt><dd>${UI.esc(p.unit)}</dd></div><div><dt>Số lượng tồn kho</dt><dd>${p.stockQuantity} ${UI.esc(p.unit.toLowerCase())}</dd></div></dl></div></article>`;
+} catch (e) { UI.error(e.message); } })();
+</script></body></html>

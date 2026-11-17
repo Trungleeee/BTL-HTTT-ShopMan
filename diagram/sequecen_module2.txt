@@ -1,0 +1,117 @@
+@startuml
+skinparam Style strictuml
+skinparam SequenceMessageAlignment center
+skinparam monochrome true
+skinparam lifelineStrategy solid
+hide footbox
+autonumber "0:"
+
+actor "Quan ly" as QL
+boundary "gdChinhQL4.jsp" as GDChinh
+boundary "gdChonTK4.jsp" as GDChon
+boundary "gdTKKhachHang4.jsp" as GDTK
+boundary "gdLichSuMuaHang4.jsp" as GDLichSu
+boundary "gdChiTietHoaDon4.jsp" as GDChiTiet
+control "TKKhachHangDAO4" as TKDAO
+control "TKHoaDonDAO4" as HDDAO
+control "SalesOrderDAO4" as OrderDAO
+control "SalesOrderDetailDAO4" as DetailDAO
+entity "TKKhachHangTheoDoanhThu4" as TKKH
+entity "TKHoaDon4" as TKHD
+entity "SalesOrder4" as Order
+entity "SalesOrderDetail4" as Detail
+
+activate QL
+activate GDChinh
+
+QL -> GDChinh : chon xem thong ke
+GDChinh -> GDChon : goi
+activate GDChon
+GDChon --> QL : hien thi
+
+QL -> GDChon : chon TK khach hang theo doanh thu
+GDChon -> GDTK : goi
+activate GDTK
+GDTK --> QL : hien thi
+
+QL -> GDTK : nhap khoang ngay + click xem TK
+GDTK -> TKDAO : goi
+activate TKDAO
+TKDAO -> TKDAO : getKhachHangTheoDoanhThu()
+activate TKDAO
+TKDAO -> TKKH : goi
+activate TKKH
+TKKH -> TKKH : TKKhachHangTheoDoanhThu4()
+activate TKKH
+deactivate TKKH
+TKKH --> TKDAO : tra ve
+deactivate TKKH
+deactivate TKDAO
+TKDAO --> GDTK : tra ve
+deactivate TKDAO
+
+GDTK --> QL : hien thi
+
+QL -> GDTK : chon 1 khach hang
+GDTK -> GDLichSu : goi
+activate GDLichSu
+GDLichSu -> HDDAO : goi
+activate HDDAO
+HDDAO -> HDDAO : getHoaDonCuaKhachHang()
+activate HDDAO
+HDDAO -> TKHD : goi
+activate TKHD
+TKHD -> TKHD : TKHoaDon4()
+activate TKHD
+deactivate TKHD
+TKHD --> HDDAO : tra ve
+deactivate TKHD
+deactivate HDDAO
+HDDAO --> GDLichSu : tra ve
+deactivate HDDAO
+
+GDLichSu --> QL : hien thi
+
+QL -> GDLichSu : chon 1 hoa don
+GDLichSu -> GDChiTiet : goi
+activate GDChiTiet
+
+GDChiTiet -> OrderDAO : goi
+activate OrderDAO
+OrderDAO -> OrderDAO : getHoaDonTrongKy()
+activate OrderDAO
+OrderDAO -> Order : goi
+activate Order
+Order -> Order : SalesOrder4()
+activate Order
+deactivate Order
+Order --> OrderDAO : tra ve
+deactivate Order
+deactivate OrderDAO
+OrderDAO --> GDChiTiet : tra ve
+deactivate OrderDAO
+
+GDChiTiet -> DetailDAO : goi
+activate DetailDAO
+DetailDAO -> DetailDAO : getChiTietHoaDon()
+activate DetailDAO
+DetailDAO -> Detail : goi
+activate Detail
+Detail -> Detail : SalesOrderDetail4()
+activate Detail
+deactivate Detail
+Detail --> DetailDAO : tra ve
+deactivate Detail
+deactivate DetailDAO
+DetailDAO --> GDChiTiet : tra ve
+deactivate DetailDAO
+
+GDChiTiet --> QL : hien thi
+
+deactivate GDChiTiet
+deactivate GDLichSu
+deactivate GDTK
+deactivate GDChon
+deactivate GDChinh
+deactivate QL
+@enduml

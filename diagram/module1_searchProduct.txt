@@ -1,0 +1,29 @@
+@startuml
+
+left to right direction
+
+
+skinparam nodesep 25
+skinparam ranksep 25
+
+skinparam usecase {
+    BackgroundColor White
+    BorderColor Black
+}
+
+actor "Customer\n(Khách hàng)" as Customer
+
+rectangle "Search Product Module" {
+
+    usecase "Search Product\n(Tìm kiếm mặt hàng)" as Search
+
+    usecase "View Product Detail\n(Xem chi tiết mặt hàng)" as Detail
+
+    Search -[hidden]right-> Detail
+}
+
+Customer --> Search
+
+Detail ..> Search : <<extend>>
+
+@enduml
