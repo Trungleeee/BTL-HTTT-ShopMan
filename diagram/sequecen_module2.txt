@@ -6,112 +6,124 @@ skinparam lifelineStrategy solid
 hide footbox
 autonumber "0:"
 
-actor "Quan ly" as QL
-boundary "gdChinhQL4.jsp" as GDChinh
-boundary "gdChonTK4.jsp" as GDChon
-boundary "gdTKKhachHang4.jsp" as GDTK
-boundary "gdLichSuMuaHang4.jsp" as GDLichSu
-boundary "gdChiTietHoaDon4.jsp" as GDChiTiet
-control "TKKhachHangDAO4" as TKDAO
-control "TKHoaDonDAO4" as HDDAO
+actor "Manager" as Manager
+boundary "ManagerHomeView4.jsp" as Home
+boundary "StatisticsSelectionView4.jsp" as Selection
+boundary "CustomerRevenueStatisticsView4.jsp" as Revenue
+boundary "CustomerPurchaseHistoryView4.jsp" as History
+boundary "SalesOrderDetailView4.jsp" as OrderView
+
+control "CustomerRevenueStatisticsDAO4" as RevenueDAO
 control "SalesOrderDAO4" as OrderDAO
 control "SalesOrderDetailDAO4" as DetailDAO
-entity "TKKhachHangTheoDoanhThu4" as TKKH
-entity "TKHoaDon4" as TKHD
+
+entity "CustomerRevenueStatistics4" as CustomerStatistics
 entity "SalesOrder4" as Order
-entity "SalesOrderDetail4" as Detail
+entity "SalesOrderDetail4" as OrderDetail
 
-activate QL
-activate GDChinh
+activate Manager
+activate Home
 
-QL -> GDChinh : chon xem thong ke
-GDChinh -> GDChon : goi
-activate GDChon
-GDChon --> QL : hien thi
+Manager -> Home : select Statistics / Reports
+Home -> Selection : call
+activate Selection
+Selection --> Manager : display statistics types
 
-QL -> GDChon : chon TK khach hang theo doanh thu
-GDChon -> GDTK : goi
-activate GDTK
-GDTK --> QL : hien thi
+Manager -> Selection : select Customer Revenue Statistics
+Selection -> Revenue : call
+activate Revenue
+Revenue --> Manager : display date range form
 
-QL -> GDTK : nhap khoang ngay + click xem TK
-GDTK -> TKDAO : goi
-activate TKDAO
-TKDAO -> TKDAO : getKhachHangTheoDoanhThu()
-activate TKDAO
-TKDAO -> TKKH : goi
-activate TKKH
-TKKH -> TKKH : TKKhachHangTheoDoanhThu4()
-activate TKKH
-deactivate TKKH
-TKKH --> TKDAO : tra ve
-deactivate TKKH
-deactivate TKDAO
-TKDAO --> GDTK : tra ve
-deactivate TKDAO
+Manager -> Revenue : enter date range and click View Statistics
+Revenue -> Revenue : validate date range
+activate Revenue
+deactivate Revenue
 
-GDTK --> QL : hien thi
+Revenue -> RevenueDAO : call
+activate RevenueDAO
+RevenueDAO -> RevenueDAO : getCustomerRevenueStatistics(startDate, endDate)
+activate RevenueDAO
 
-QL -> GDTK : chon 1 khach hang
-GDTK -> GDLichSu : goi
-activate GDLichSu
-GDLichSu -> HDDAO : goi
-activate HDDAO
-HDDAO -> HDDAO : getHoaDonCuaKhachHang()
-activate HDDAO
-HDDAO -> TKHD : goi
-activate TKHD
-TKHD -> TKHD : TKHoaDon4()
-activate TKHD
-deactivate TKHD
-TKHD --> HDDAO : tra ve
-deactivate TKHD
-deactivate HDDAO
-HDDAO --> GDLichSu : tra ve
-deactivate HDDAO
+RevenueDAO -> CustomerStatistics : call
+activate CustomerStatistics
+CustomerStatistics -> CustomerStatistics : CustomerRevenueStatistics4()
+activate CustomerStatistics
+deactivate CustomerStatistics
+CustomerStatistics --> RevenueDAO : return
+deactivate CustomerStatistics
 
-GDLichSu --> QL : hien thi
+deactivate RevenueDAO
+RevenueDAO --> Revenue : return: CustomerRevenueStatistics4[]
+deactivate RevenueDAO
 
-QL -> GDLichSu : chon 1 hoa don
-GDLichSu -> GDChiTiet : goi
-activate GDChiTiet
+Revenue --> Manager : display customers and revenue (descending)\nwith a sort list when results exist
 
-GDChiTiet -> OrderDAO : goi
+autonumber stop
+loop Manager changes the revenue sort order
+  Manager -> Revenue : select ascending or descending revenue
+  Revenue -> Revenue : sort loaded results and update ranks
+  Revenue --> Manager : display reordered results
+end
+autonumber resume
+
+Manager -> Revenue : select a customer
+Revenue -> History : call: customerId, startDate, endDate
+activate History
+
+History -> OrderDAO : call
 activate OrderDAO
-OrderDAO -> OrderDAO : getHoaDonTrongKy()
+OrderDAO -> OrderDAO : getOrdersByCustomer(customerId, startDate, endDate)
 activate OrderDAO
-OrderDAO -> Order : goi
+
+OrderDAO -> Order : call
 activate Order
 Order -> Order : SalesOrder4()
 activate Order
 deactivate Order
-Order --> OrderDAO : tra ve
+Order --> OrderDAO : return
 deactivate Order
+
 deactivate OrderDAO
-OrderDAO --> GDChiTiet : tra ve
+OrderDAO --> History : return: SalesOrder4[]
 deactivate OrderDAO
 
-GDChiTiet -> DetailDAO : goi
+History -> History : store orders, customerId and period in session
+activate History
+deactivate History
+
+History --> Manager : display customer, period and order history
+
+Manager -> History : select an order
+History -> OrderView : call: orderId, customerId, startDate, endDate
+activate OrderView
+
+OrderView -> OrderView : get order
+activate OrderView
+deactivate OrderView
+
+OrderView -> DetailDAO : call
 activate DetailDAO
-DetailDAO -> DetailDAO : getChiTietHoaDon()
+DetailDAO -> DetailDAO : getOrderDetails(orderId)
 activate DetailDAO
-DetailDAO -> Detail : goi
-activate Detail
-Detail -> Detail : SalesOrderDetail4()
-activate Detail
-deactivate Detail
-Detail --> DetailDAO : tra ve
-deactivate Detail
+
+DetailDAO -> OrderDetail : call
+activate OrderDetail
+OrderDetail -> OrderDetail : SalesOrderDetail4()
+activate OrderDetail
+deactivate OrderDetail
+OrderDetail --> DetailDAO : return
+deactivate OrderDetail
+
 deactivate DetailDAO
-DetailDAO --> GDChiTiet : tra ve
+DetailDAO --> OrderView : return: SalesOrderDetail4[]
 deactivate DetailDAO
 
-GDChiTiet --> QL : hien thi
+OrderView --> Manager : display order information, product list and total amount
 
-deactivate GDChiTiet
-deactivate GDLichSu
-deactivate GDTK
-deactivate GDChon
-deactivate GDChinh
-deactivate QL
+deactivate OrderView
+deactivate History
+deactivate Revenue
+deactivate Selection
+deactivate Home
+deactivate Manager
 @enduml

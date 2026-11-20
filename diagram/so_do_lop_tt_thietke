@@ -7,19 +7,20 @@ skinparam shadowing false
 skinparam roundcorner 0
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
-skinparam nodesep 65
-skinparam ranksep 80
+skinparam nodesep 35
+skinparam ranksep 55
 skinparam defaultFontName Arial
 skinparam defaultFontSize 13
 skinparam ArrowColor black
 skinparam classBorderColor black
 skinparam classBackgroundColor white
+skinparam padding 3
 
 hide circle
 hide methods
 
 ' ===================================
-' 1. MEMBERS AND INHERITANCE
+' 1. THÀNH VIÊN VÀ KẾ THỪA
 ' ===================================
 
 abstract class Member4 {
@@ -35,24 +36,26 @@ abstract class Member4 {
     - note : String
 }
 
-class Manager4 {
-    - employeeCode : String
-    - position : String
-}
+together {
+    class Manager4 {
+        - employeeCode : String
+        - position : String
+    }
 
-class SalesStaff4 {
-    - employeeCode : String
-    - workShift : String
-}
+    class SalesStaff4 {
+        - employeeCode : String
+        - workShift : String
+    }
 
-class Customer4 {
-    - customerCode : String
-    - defaultShippingAddress : String
-    - loyaltyPoints : int
+    class Customer4 {
+        - customerCode : String
+        - defaultShippingAddress : String
+        - loyaltyPoints : int
+    }
 }
 
 ' ===================================
-' 2. PRODUCTS AND SUPPLIERS
+' 2. DANH MỤC, SẢN PHẨM, NHÀ CUNG CẤP
 ' ===================================
 
 class Category4 {
@@ -81,11 +84,11 @@ class Supplier4 {
     - address : String
     - phoneNumber : String
     - email : String
-    - note : String
+    - description : String
 }
 
 ' ===================================
-' 3. SHOPPING CART
+' 3. GIỎ HÀNG
 ' ===================================
 
 class ShoppingCart4 {
@@ -102,7 +105,7 @@ class CartItem4 {
 }
 
 ' ===================================
-' 4. SALES ORDERS
+' 4. HÓA ĐƠN BÁN
 ' ===================================
 
 class SalesOrder4 {
@@ -119,15 +122,15 @@ class SalesOrder4 {
 
 class SalesOrderDetail4 {
     - id : int
+    - detailCode : String
     - quantity : int
     - unitPrice : BigDecimal
     - /lineTotal : BigDecimal
     - product : Product4
 }
 
-
 ' ===================================
-' 5. IMPORT INVOICES
+' 5. HÓA ĐƠN NHẬP
 ' ===================================
 
 class ImportInvoice4 {
@@ -142,35 +145,82 @@ class ImportInvoice4 {
 
 class ImportInvoiceDetail4 {
     - id : int
+    - detailCode : String
     - quantity : int
     - importPrice : BigDecimal
     - /lineTotal : BigDecimal
     - product : Product4
 }
 
-' KẾ THỪA: giữ mũi tên tam giác rỗng
+' ===================================
+' 6. THỐNG KÊ KHÁCH HÀNG
+' ===================================
+
+class CustomerRevenueStatistics4  {
+    - /totalRevenue : BigDecimal
+    - /orderCount : int
+}
+
+' ===================================
+' 7. QUAN HỆ KẾ THỪA
+' ===================================
+
 Member4 <|-- Manager4
 Member4 <|-- SalesStaff4
 Member4 <|-- Customer4
 
-' LIÊN KẾT THÔNG THƯỜNG: đường liền không mũi tên
-Product4 "0..*" -- "1" Category4
-ShoppingCart4 "1" -- "1" Customer4
+Customer4 <|-right- CustomerRevenueStatistics4
 
-SalesOrder4 "0..*" -- "1" Customer4
-SalesOrder4 "0..*" -- "0..1" SalesStaff4
+' ===================================
+' 8. ASSOCIATION
+' ===================================
 
-ImportInvoice4 "0..*" -- "1" Supplier4
-ImportInvoice4 "0..*" -- "1" Manager4
+Product4 "0..*" -down- "1" Category4
 
-' HỢP THÀNH: hình thoi đặc ở phía chứa chi tiết
-ShoppingCart4 "1" *-- "0..*" CartItem4
-SalesOrder4 "1" *-- "1..*" SalesOrderDetail4
-ImportInvoice4 "1" *-- "1..*" ImportInvoiceDetail4
+ShoppingCart4 "1" -up- "1" Customer4
 
-' KẾT TẬP: hình thoi rỗng ở phía lớp chi tiết
+SalesOrder4 "0..*" -up- "1" Customer4
+SalesOrder4 "0..*" -up- "0..1" SalesStaff4
+
+ImportInvoice4 "0..*" -up- "1" Supplier4
+ImportInvoice4 "0..*" -up- "1" Manager4
+
+' ===================================
+' 9. COMPOSITION
+' Hình thoi đen tại giỏ hàng/hóa đơn
+' ===================================
+
+ShoppingCart4 "1" *-down- "0..*" CartItem4
+
+SalesOrder4 "1" *-down- "1..*" SalesOrderDetail4
+
+ImportInvoice4 "1" *-down- "1..*" ImportInvoiceDetail4
+
+' ===================================
+' 10. AGGREGATION
+' Hình thoi trắng tại lớp chi tiết
+' ===================================
+
 CartItem4 "0..*" o-- "1" Product4
-SalesOrderDetail4 "0..*" o-- "1" Product4
+
+SalesOrderDetail4 "0..*" o-down- "1" Product4
+
 ImportInvoiceDetail4 "0..*" o-- "1" Product4
+
+' ===================================
+' 11. RÀNG BUỘC BỐ CỤC
+' Không phải quan hệ nghiệp vụ
+' ===================================
+
+Manager4 -[hidden]right- SalesStaff4
+SalesStaff4 -[hidden]right- Customer4
+
+ImportInvoice4 -[hidden]right- SalesOrder4
+SalesOrder4 -[hidden]right- ShoppingCart4
+
+ImportInvoiceDetail4 -[hidden]right- SalesOrderDetail4
+SalesOrderDetail4 -[hidden]right- CartItem4
+
+Supplier4 -[hidden]down- ImportInvoice4
 
 @enduml

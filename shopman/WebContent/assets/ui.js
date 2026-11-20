@@ -8,10 +8,12 @@
   const context = JSON.parse(document.querySelector('#shopman-context')?.textContent || '{}');
   const auth = {
     user: context.user || null,
-    async login(role, username, password) {
-      const response = await fetch(new URL('api/session', siteBase), { method: 'POST', credentials: 'same-origin', body: new URLSearchParams({ action: 'login', role, username, password }) });
-      if (!response.ok) throw new Error('Tên đăng nhập hoặc mật khẩu không đúng.');
-      location.href = url(role === 'manager' ? 'management' : 'store');
+    async login(username, password) {
+      const response = await fetch(new URL('api/session', siteBase), { method: 'POST', credentials: 'same-origin', body: new URLSearchParams({ action: 'login', username, password }) });
+      if (response.status === 401) throw new Error('Tên đăng nhập hoặc mật khẩu không đúng.');
+      if (!response.ok) throw new Error('Không thể đăng nhập lúc này. Vui lòng thử lại.');
+      const { user } = await response.json();
+      location.href = url(user.role === 'manager' ? 'management' : 'store');
     },
     async logout() {
       const response = await fetch(new URL('api/session', siteBase), { method: 'POST', credentials: 'same-origin', body: new URLSearchParams({ action: 'logout' }) });
@@ -21,7 +23,7 @@
   };
   const params = ShopRoutes.parameters(location.href, siteBase);
   for (const [key, value] of Object.entries(context.selection || {})) params.set(key, value);
-  const period = () => ({ ngayBatDau: params.get('ngayBatDau') ?? '2026-09-01', ngayKetThuc: params.get('ngayKetThuc') ?? '2026-09-30' });
+  const period = () => ({ ngayBatDau: params.get('ngayBatDau'), ngayKetThuc: params.get('ngayKetThuc') });
   const status = text => `<span class="status">${esc(text)}</span>`;
   const empty = (title, text, action = '') => `<div class="empty"><h2>${esc(title)}</h2>${text ? `<p>${esc(text)}</p>` : ''}${action}</div>`;
   function error(message, target = document.querySelector('main')) {
@@ -52,7 +54,7 @@
     const current = ShopRoutes.match(location.pathname, siteBase)?.name;
     const home = url(manager ? 'management' : 'store');
     const links = manager
-      ? [['management', 'Tổng quan'], ['reports', 'Báo cáo']]
+      ? [['management', 'Tổng quan'], ['reports', 'Thống kê']]
       : [['store', 'Trang chủ'], ['products', 'Tìm mặt hàng']];
     const active = file => current === file
       || (file === 'products' && current === 'product')

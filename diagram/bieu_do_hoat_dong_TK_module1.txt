@@ -22,11 +22,11 @@ skinparam partition {
   FontColor black
 }
 
-partition "Xử lý tại gdChinhKH4.jsp" {
+partition "Xử lý tại CustomerHomeView4.jsp" {
   "Nhận thông tin khách hàng\n tại trang chính" --> "Hiển thị giao diện chính" as MAIN_SHOW
 }
 
-partition "Xử lý tại gdTimKiemMatHang4.jsp" {
+partition "Xử lý tại ProductSearchView4.jsp" {
   "Nhận thông tin khách hàng\n tại trang tìm kiếm" --> "Hiển thị giao diện tìm kiếm" as SEARCH_FORM
 
   SEARCH_FORM -->[nhập từ khóa và click tìm kiếm] "Nhận từ khóa" as SEARCH_INPUT
@@ -36,7 +36,7 @@ partition "Xử lý tại gdTimKiemMatHang4.jsp" {
   "Nhận danh sách mặt hàng" --> "Hiển thị kết quả tìm kiếm" as SEARCH_RESULT
 }
 
-partition "Xử lý tại gdChiTietMatHang4.jsp" {
+partition "Xử lý tại ProductDetailView4.jsp" {
   "Nhận productId và từ khóa" --> "Lấy thông tin mặt hàng" as DETAIL_LOAD
 
   "Nhận thông tin mặt hàng" --> "Hiển thị chi tiết mặt hàng" as DETAIL_SHOW
@@ -51,11 +51,11 @@ MAIN_SHOW -->[click tìm kiếm] "Nhận thông tin khách hàng\n tại trang t
 SEARCH_RESULT -->[click một mặt hàng] "Nhận productId và từ khóa"
 
 ' DAO ngoài các khung
-SEARCH_LOAD --> "ProductDAO4:\ngetMatHangTheoTen(tuKhoa)" as SEARCH_DAO
+SEARCH_LOAD --> "ProductDAO4:\ngetProductsByKeyword(keyword)" as SEARCH_DAO
 
 SEARCH_DAO -->[lấy xong dữ liệu] "Nhận danh sách mặt hàng"
 
-DETAIL_LOAD --> "ProductDAO4:\ngetMatHangTheoId(productId)" as DETAIL_DAO
+DETAIL_LOAD --> "ProductDAO4:\ngetProductById(productId)" as DETAIL_DAO
 
 DETAIL_DAO -->[lấy xong dữ liệu] "Nhận thông tin mặt hàng"
 
@@ -66,4 +66,4 @@ DETAIL_SHOW -->[click quay lại] SEARCH_RESULT
 ' Kết thúc ở ngoài các khung
 DETAIL_SHOW -->[kết thúc xem] (*)
 
-@endumld
+@enduml

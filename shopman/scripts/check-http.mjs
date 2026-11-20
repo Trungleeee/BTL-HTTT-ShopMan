@@ -24,15 +24,16 @@ try {
   });
   const readContext = html => JSON.parse(html.match(/id="shopman-context">([^]*?)<\/script>/)[1]);
   const signIn = async (role, endpoint = '/api/session') => {
-    const response = await request(endpoint, '', { action: 'login', role, username: role === 'manager' ? 'Admin' : 'khachhang', password: 'demo123' });
+    const response = await request(endpoint, '', { action: 'login', username: role === 'manager' ? 'Admin' : 'khachhang', password: 'demo123' });
     assert.equal(response.status, 200);
+    assert.equal((await response.json()).user.role, role);
     assert.match(response.headers.get('set-cookie'), /HttpOnly/);
     assert.match(response.headers.get('set-cookie'), /SameSite=Strict/);
     return response.headers.get('set-cookie').split(';')[0];
   };
   const manager = await signIn('manager'), customer = await signIn('customer');
   assert.equal((await request('/doDangNhap.jsp')).status, 405, 'Login handler only accepts POST');
-  assert.equal((await request('/doDangNhap.jsp', '', { action: 'login', role: 'manager', username: 'Admin', password: 'wrong' })).status, 401);
+  assert.equal((await request('/doDangNhap.jsp', '', { action: 'login', username: 'Admin', password: 'wrong' })).status, 401);
   assert.equal((await request('/doDangNhap.jsp', '', { action: 'logout' }, 'https://evil.example')).status, 403);
   const protectedPaths = ['/cua-hang', '/san-pham', '/san-pham/chi-tiet', '/quan-ly', '/quan-ly/bao-cao', '/quan-ly/bao-cao/doanh-thu-khach-hang', '/quan-ly/khach-hang/lich-su-mua-hang', '/quan-ly/hoa-don/chi-tiet'];
   for (const pathname of protectedPaths) {
@@ -54,21 +55,23 @@ try {
       assert.equal((await fetch(base + '/' + asset[1])).status, 200, asset[1]);
     }
   }
-  const legacy = await request('/gdChiTietMatHang4.jsp?productId=1&tuKhoa=laptop');
+  const legacy = await request('/ProductDetailView4.jsp?productId=1&tuKhoa=laptop');
   assert.equal(legacy.status, 302);
   assert.equal(legacy.headers.get('location'), base + '/san-pham?tuKhoa=laptop');
-  const history = await request('/gdLichSuMuaHang4.jsp?customerId=1&ngayBatDau=2026-09-01&ngayKetThuc=2026-09-30');
+  const history = await request('/CustomerPurchaseHistoryView4.jsp?customerId=1&ngayBatDau=2026-09-01&ngayKetThuc=2026-09-30');
   assert.equal(history.headers.get('location'), base + '/quan-ly/bao-cao/doanh-thu-khach-hang?ngayBatDau=2026-09-01&ngayKetThuc=2026-09-30');
   const selection = { customerId: '1', ngayBatDau: '2026-09-01', ngayKetThuc: '2026-09-30' };
   const path = '/quan-ly/khach-hang/lich-su-mua-hang', invoice = '/quan-ly/hoa-don/chi-tiet';
   assert.equal((await request(path, customer, selection)).status, 403, 'Customer cannot select manager records');
   assert.equal((await request(path, manager, selection, 'https://evil.example')).status, 403, 'Reject cross-origin POST');
+  assert.equal((await request(path, manager, { customerId: '1' })).status, 400, 'History selection requires both dates');
   assert.equal((await request(invoice, manager, { ...selection, orderId: '17' })).status, 400, 'Invoice requires selected history');
-  const selected = await request(path, manager, selection);
+  const selected = await request(path, manager, { ...selection, sort: 'ascending' });
   assert.equal(selected.status, 303);
   assert.equal(selected.headers.get('location'), base + path);
   let context = readContext(await (await request(path, manager)).text());
   assert.equal(context.selection.customerId, '1');
+  assert.equal(context.selection.sort, 'ascending', 'History preserves the revenue sort for the return link');
   const secondManager = await signIn('manager', '/doDangNhap.jsp');
   assert.deepEqual(readContext(await (await request(path, secondManager)).text()).selection, {}, 'Selection isolated between sessions');
   const invoicePost = await request(invoice, manager, { ...selection, orderId: '17' });

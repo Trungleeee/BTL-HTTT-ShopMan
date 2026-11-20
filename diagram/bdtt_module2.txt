@@ -44,7 +44,7 @@ class CustomerRevenueStatisticsView4 {
   - outCustomerRevenueList
   - outMessage
   - subViewStatistics
-  - subToggleRevenueSort
+  - inSortOrder
   - subSelectCustomer
   - subBack
 }

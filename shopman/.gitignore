@@ -1,2 +1,6 @@
 /build/
 *.class
+.env
+/.runtime/
+*.properties.local
+/db.properties

@@ -1,15 +1,15 @@
 (function (global) {
   'use strict';
   const routes = [
-    { name: 'login', path: '/dang-nhap', file: 'gdDangNhap4.jsp' },
-    { name: 'store', path: '/cua-hang', file: 'gdChinhKH4.jsp' },
-    { name: 'products', path: '/san-pham', file: 'gdTimKiemMatHang4.jsp' },
-    { name: 'product', path: '/san-pham/chi-tiet', file: 'gdChiTietMatHang4.jsp' },
-    { name: 'management', path: '/quan-ly', file: 'gdChinhQL4.jsp' },
-    { name: 'reports', path: '/quan-ly/bao-cao', file: 'gdChonTK4.jsp' },
-    { name: 'customerRevenue', path: '/quan-ly/bao-cao/doanh-thu-khach-hang', file: 'gdTKKhachHang4.jsp' },
-    { name: 'purchaseHistory', path: '/quan-ly/khach-hang/lich-su-mua-hang', file: 'gdLichSuMuaHang4.jsp' },
-    { name: 'invoice', path: '/quan-ly/hoa-don/chi-tiet', file: 'gdChiTietHoaDon4.jsp' }
+    { name: 'login', path: '/dang-nhap', file: 'LoginView.jsp' },
+    { name: 'store', path: '/cua-hang', file: 'CustomerHomeView4.jsp' },
+    { name: 'products', path: '/san-pham', file: 'ProductSearchView4.jsp' },
+    { name: 'product', path: '/san-pham/chi-tiet', file: 'ProductDetailView4.jsp' },
+    { name: 'management', path: '/quan-ly', file: 'ManagerHomeView4.jsp' },
+    { name: 'reports', path: '/quan-ly/bao-cao', file: 'StatisticsSelectionView4.jsp' },
+    { name: 'customerRevenue', path: '/quan-ly/bao-cao/doanh-thu-khach-hang', file: 'CustomerRevenueStatisticsView4.jsp' },
+    { name: 'purchaseHistory', path: '/quan-ly/khach-hang/lich-su-mua-hang', file: 'CustomerPurchaseHistoryView4.jsp' },
+    { name: 'invoice', path: '/quan-ly/hoa-don/chi-tiet', file: 'SalesOrderDetailView4.jsp' }
   ];
   const allowedQuery = new Set(['tuKhoa', 'sort', 'view', 'ngayBatDau', 'ngayKetThuc', 'danh-muc']);
   const categorySlugs = ['', 'laptop', 'dien-tu', 'thuc-pham', 'gia-dung'];

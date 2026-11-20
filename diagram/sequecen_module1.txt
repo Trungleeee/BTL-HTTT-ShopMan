@@ -4,62 +4,94 @@ skinparam SequenceMessageAlignment center
 skinparam monochrome true
 skinparam lifelineStrategy solid
 hide footbox
-autonumber "0:"
+autonumber 1 "0:"
 
-actor "Khach hang" as KH
-boundary "gdChinhKH4.jsp" as GDChinh
-boundary "gdTimKiemMatHang4.jsp" as GDTim
-boundary "gdChiTietMatHang4.jsp" as GDChiTiet
+actor "Customer" as Customer
+boundary "CustomerHomeView4.jsp" as Home
+boundary "ProductSearchView4.jsp" as Search
+boundary "ProductDetailView4.jsp" as Detail
 control "ProductDAO4" as PDAO
-entity "Product4" as Prod
+entity "Product4" as Product
 
-activate KH
-activate GDChinh
+activate Customer
+activate Home
 
-KH -> GDChinh : chon tim kiem mat hang
-GDChinh -> GDTim : goi
-activate GDTim
-GDTim --> KH : hien thi
+Customer -> Home : select Product Search
+Home -> Search : call
+activate Search
 
-KH -> GDTim : nhap tu khoa + click tim kiem
-GDTim -> PDAO : goi
+Search -> PDAO : call
 activate PDAO
-PDAO -> PDAO : getMatHangTheoTen()
+PDAO -> PDAO : getProductsByKeyword("")
 activate PDAO
-PDAO -> Prod : goi
-activate Prod
-Prod -> Prod : Product4()
-activate Prod
-deactivate Prod
-Prod --> PDAO : tra ve
-deactivate Prod
+
+PDAO -> Product : call
+activate Product
+Product -> Product : Product4()
+activate Product
+deactivate Product
+Product --> PDAO : return
+deactivate Product
+
 deactivate PDAO
-PDAO --> GDTim : tra ve
-deactivate PDAO
-
-GDTim --> KH : hien thi
-
-KH -> GDTim : click 1 mat hang
-GDTim -> GDChiTiet : goi
-activate GDChiTiet
-GDChiTiet -> PDAO : goi
-activate PDAO
-PDAO -> PDAO : getMatHangTheoId()
-activate PDAO
-PDAO -> Prod : goi
-activate Prod
-Prod -> Prod : Product4()
-activate Prod
-deactivate Prod
-Prod --> PDAO : tra ve
-deactivate Prod
-deactivate PDAO
-PDAO --> GDChiTiet : tra ve
+PDAO --> Search : return: Product4[]
 deactivate PDAO
 
-GDChiTiet --> KH : hien thi
-deactivate GDChiTiet
-deactivate GDTim
-deactivate GDChinh
-deactivate KH
+Search --> Customer : display search form
+
+Customer -> Search : enter keyword and click Search
+Search -> Search : trim and validate keyword
+activate Search
+deactivate Search
+
+Search -> PDAO : call
+activate PDAO
+PDAO -> PDAO : getProductsByKeyword(keyword)
+activate PDAO
+
+PDAO -> Product : call
+activate Product
+Product -> Product : Product4()
+activate Product
+deactivate Product
+Product --> PDAO : return
+deactivate Product
+
+deactivate PDAO
+PDAO --> Search : return: Product4[]
+deactivate PDAO
+
+Search --> Customer : display product list
+
+Customer -> Search : select a product
+Search -> Detail : call
+activate Detail
+
+Detail -> Detail : receive productId
+activate Detail
+deactivate Detail
+
+Detail -> PDAO : call
+activate PDAO
+PDAO -> PDAO : getProductById(productId)
+activate PDAO
+
+PDAO -> Product : call
+activate Product
+Product -> Product : Product4()
+activate Product
+deactivate Product
+Product --> PDAO : return
+deactivate Product
+
+deactivate PDAO
+PDAO --> Detail : return: Product4
+deactivate PDAO
+
+Detail --> Customer : display product details
+
+deactivate Detail
+deactivate Search
+deactivate Home
+deactivate Customer
 @enduml

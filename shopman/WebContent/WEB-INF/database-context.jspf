@@ -1,0 +1,112 @@
+<%@ page import="dao.*,model.*,java.sql.SQLException" %>
+<%!
+private Map<String, Object> smProduct(Product4 product) {
+    if (product == null) return null;
+    Map<String, Object> row = new LinkedHashMap<String, Object>();
+    row.put("id", product.getId()); row.put("productCode", product.getProductCode());
+    row.put("productName", product.getProductName()); row.put("sellingPrice", product.getSellingPrice());
+    row.put("stockQuantity", product.getStockQuantity()); row.put("description", product.getDescription());
+    row.put("imageUrl", product.getImageUrl()); row.put("unit", product.getUnit());
+    return row;
+}
+private Map<String, Object> smCustomer(Customer4 customer) {
+    Map<String, Object> row = new LinkedHashMap<String, Object>();
+    row.put("id", customer.getId()); row.put("customerCode", customer.getCustomerCode());
+    row.put("fullName", customer.getFullName()); row.put("phoneNumber", customer.getPhoneNumber());
+    row.put("email", customer.getEmail()); row.put("defaultShippingAddress", customer.getDefaultShippingAddress());
+    return row;
+}
+private Map<String, Object> smOrder(SalesOrder4 order) {
+    Map<String, Object> row = new LinkedHashMap<String, Object>();
+    row.put("id", order.getId()); row.put("orderCode", order.getOrderCode());
+    row.put("orderDate", order.getOrderDate().toString()); row.put("status", order.getStatus());
+    row.put("totalAmount", order.getTotalAmount()); row.put("shippingAddress", order.getShippingAddress());
+    row.put("customer", smCustomer(order.getCustomer()));
+    SalesStaff4 staff = order.getApprovedBy();
+    Map<String, Object> employee = new LinkedHashMap<String, Object>();
+    employee.put("fullName", staff == null ? "Chưa phân công" : staff.getFullName());
+    employee.put("employeeCode", staff == null ? "—" : staff.getEmployeeCode());
+    row.put("salesStaff", employee);
+    return row;
+}
+private LocalDate smDate(String date) {
+    if (date == null || !date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) throw new IllegalArgumentException();
+    try { return LocalDate.parse(date); }
+    catch (java.time.DateTimeException invalid) { throw new IllegalArgumentException(); }
+}
+%>
+<%
+Map<String, Object> smData = new LinkedHashMap<String, Object>();
+smContext.put("data", smData);
+try {
+    Map<String, String> smChosen = smSelection instanceof Map ? (Map<String, String>) smSelection : Collections.<String, String>emptyMap();
+    boolean report = "customerRevenue".equals(smName);
+    boolean reportRequested = report && (request.getParameter("ngayBatDau") != null || request.getParameter("ngayKetThuc") != null);
+    if ("products".equals(smName)) {
+        String keyword = request.getParameter("tuKhoa");
+        if (keyword != null && keyword.trim().length() > 100) throw new IllegalArgumentException();
+        List<Map<String, Object>> products = new ArrayList<Map<String, Object>>();
+        for (Product4 product : new ProductDAO4().getProductsByKeyword(keyword)) products.add(smProduct(product));
+        smData.put("products", products);
+    } else if ("product".equals(smName)) {
+        String id = smChosen.get("productId");
+        smData.put("product", id == null ? null : smProduct(new ProductDAO4().getProductById(Integer.parseInt(id))));
+    } else if (reportRequested || "purchaseHistory".equals(smName) || "invoice".equals(smName)) {
+        LocalDate start = smDate(report ? request.getParameter("ngayBatDau") : smChosen.get("ngayBatDau"));
+        LocalDate end = smDate(report ? request.getParameter("ngayKetThuc") : smChosen.get("ngayKetThuc"));
+        if (start.isAfter(end)) throw new IllegalArgumentException();
+        if (report) {
+            List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+            for (CustomerRevenueStatistics4 customer : new CustomerRevenueStatisticsDAO4().getCustomerRevenueStatistics(start, end)) {
+                Map<String, Object> row = smCustomer(customer);
+                row.put("tongDoanhThu", customer.getTotalRevenue()); row.put("soHoaDon", customer.getOrderCount());
+                rows.add(row);
+            }
+            smData.put("customers", rows);
+        } else {
+            if ("purchaseHistory".equals(smName)) smSession.removeAttribute("shopman.historyOrders");
+            String customerId = smChosen.get("customerId");
+            if (customerId == null) throw new IllegalArgumentException();
+            int id = Integer.parseInt(customerId);
+            // Customer must appear in the current revenue report, not an arbitrary submitted id.
+            CustomerRevenueStatistics4 selectedCustomer = null;
+            for (CustomerRevenueStatistics4 customer : new CustomerRevenueStatisticsDAO4().getCustomerRevenueStatistics(start, end)) {
+                if (customer.getId() == id) { selectedCustomer = customer; break; }
+            }
+            if (selectedCustomer == null) throw new IllegalArgumentException();
+            SalesOrder4[] orders = new SalesOrderDAO4().getOrdersByCustomer(id, start, end);
+            smData.put("customer", smCustomer(selectedCustomer));
+            if ("purchaseHistory".equals(smName)) {
+                List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+                for (SalesOrder4 order : orders) rows.add(smOrder(order));
+                smData.put("orders", rows);
+                smSession.setAttribute("shopman.historyOrders", orders);
+                smSession.setAttribute("shopman.historyPeriod", customerId + ":" + start + ":" + end);
+            } else {
+                String orderId = smChosen.get("orderId");
+                String period = customerId + ":" + start + ":" + end;
+                SalesOrder4[] cached = (SalesOrder4[]) smSession.getAttribute("shopman.historyOrders");
+                boolean allowed = false;
+                if (orderId != null && cached != null && period.equals(smSession.getAttribute("shopman.historyPeriod"))) {
+                    for (SalesOrder4 order : cached) if (order.getId() == Integer.parseInt(orderId)) allowed = true;
+                }
+                SalesOrder4 selectedOrder = null;
+                if (allowed) for (SalesOrder4 order : orders) if (order.getId() == Integer.parseInt(orderId)) selectedOrder = order;
+                if (selectedOrder == null) throw new IllegalArgumentException();
+                List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
+                for (SalesOrderDetail4 detail : new SalesOrderDetailDAO4().getOrderDetails(selectedOrder.getId())) {
+                    Map<String, Object> row = new LinkedHashMap<String, Object>();
+                    row.put("product", smProduct(detail.getProduct())); row.put("quantity", detail.getQuantity());
+                    row.put("unitPrice", detail.getUnitPrice()); details.add(row);
+                }
+                smData.put("order", smOrder(selectedOrder)); smData.put("details", details);
+            }
+        }
+    }
+} catch (SQLException failure) {
+    application.log("ShopMan database query failed on " + smName + " (SQLState " + failure.getSQLState() + ")");
+    smData.clear(); smData.put("error", "Không thể tải dữ liệu MySQL. Vui lòng kiểm tra kết nối hoặc thử lại.");
+} catch (IllegalArgumentException failure) {
+    smData.clear(); smData.put("error", "Thông tin lựa chọn hoặc khoảng ngày không hợp lệ. Vui lòng quay lại danh sách và chọn lại.");
+}
+%>

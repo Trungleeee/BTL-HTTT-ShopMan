@@ -27,7 +27,7 @@ for (const base of ['http://127.0.0.1:4173/', 'https://example.com/ShopMan/']) {
   assert.ok(new URL(product).pathname.endsWith('/san-pham/chi-tiet'));
   assert.equal(new URL(product).searchParams.has('productId'), false);
   assert.equal(routing.parameters(product + '&productId=99', base).get('productId'), null);
-  const legacy = routing.legacy(base + 'gdLichSuMuaHang4.jsp?customerId=2&ngayBatDau=2026-09-01', base);
+  const legacy = routing.legacy(base + 'CustomerPurchaseHistoryView4.jsp?customerId=2&ngayBatDau=2026-09-01', base);
   assert.ok(legacy.includes('/quan-ly/bao-cao/doanh-thu-khach-hang'));
   assert.equal(new URL(legacy).searchParams.get('ngayBatDau'), '2026-09-01');
   assert.equal(routing.match(new URL(base).pathname + 'not-found', base), null);
@@ -85,7 +85,11 @@ const products = await data.getMatHangTheoTen('');
 for (const p of products) await access(path.join(root, p.imageUrl));
 
 const pages = (await readdir(root)).filter(name => name.endsWith('.jsp') && name !== 'doDangNhap.jsp');
-assert.equal(pages.filter(name => name.startsWith('gd')).length, 9);
+assert.equal(pages.filter(name => name.endsWith('View4.jsp')).length, 8);
+assert.ok(pages.includes('LoginView.jsp'));
+const webXml = await readFile(path.join(root, 'WEB-INF/web.xml'), 'utf8');
+assert.match(webXml, /<servlet-name>session<\/servlet-name>\s*<jsp-file>\/doDangNhap\.jsp<\/jsp-file>/);
+assert.match(webXml, /<servlet-name>session<\/servlet-name>\s*<url-pattern>\/api\/session<\/url-pattern>/);
 let scripts = 0, links = 0;
 for (const file of pages) {
   const html = await readFile(path.join(root, file), 'utf8');
@@ -97,6 +101,7 @@ for (const file of pages) {
   for (const match of html.matchAll(/(?:href|src|action)="([^"?#]+)(?:[^\"]*)"/g)) {
     const target = match[1];
     if (target.includes('${') || target.includes('<%') || target.includes(':') || target.startsWith('#')) continue;
+    if (file === 'LoginView.jsp' && match[0].startsWith('action=') && target === 'api/session') { links++; continue; }
     const route = routing.match(new URL(target, 'http://localhost/').pathname);
     await access(path.join(root, route ? route.file : target)); links++;
   }

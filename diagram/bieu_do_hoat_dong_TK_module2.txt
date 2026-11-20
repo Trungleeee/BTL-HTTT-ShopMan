@@ -26,33 +26,32 @@ skinparam partition {
   FontColor black
 }
 
-' =========================
-' KHUNG XỬ LÝ CÁC TRANG JSP
-' =========================
-
-partition "Xử lý tại gdChinhQL4.jsp" {
+' Khung xử lý các trang JSP
+partition "Xử lý tại ManagerHomeView4.jsp" {
   "Nhận thông tin\nquản lý" as MAIN_RECEIVE -right-> "Hiển thị\ntrang chính" as MAIN_SHOW
 }
 
-partition "Xử lý tại gdChonTK4.jsp" {
+partition "Xử lý tại StatisticsSelectionView4.jsp" {
   "Nhận thông tin\nquản lý đang đăng nhập" as MENU_RECEIVE -right-> "Hiển thị các\nloại thống kê" as MENU_SHOW
 }
 
-partition "Xử lý tại gdTKKhachHang4.jsp" {
-  "Nhận thông tin\nquản lý và hiển thị bộ lọc" as TK_FORM -right->[nhập ngày, click xem] "Nhận\nkhoảng ngày" as TK_INPUT
+partition "Xử lý tại CustomerRevenueStatisticsView4.jsp" {
+  "Nhận thông tin\nquản lý và hiển thị bộ lọc" as REVENUE_FORM -right->[nhập ngày, click xem] "Nhận\nkhoảng ngày" as REVENUE_INPUT
 
-  TK_INPUT -right-> "Lấy thống kê\nkhách hàng" as TK_LOAD
+  REVENUE_INPUT -right-> "Lấy thống kê\nkhách hàng" as REVENUE_LOAD
 
-  "Nhận kết quả\nthống kê" as TK_RESULT -right-> "Hiển thị khách hàng\nvà doanh thu giảm dần" as TK_SHOW
+  "Nhận kết quả\nthống kê" as REVENUE_RESULT -right-> "Hiển thị khách hàng và doanh thu\nMặc định giảm dần" as REVENUE_SHOW
+
+  REVENUE_SHOW -right->[chọn tăng dần hoặc giảm dần\nqua danh sách chọn thứ tự\nsắp xếp lại và cập nhật thứ hạng] REVENUE_SHOW
 }
 
-partition "Xử lý tại gdLichSuMuaHang4.jsp" {
+partition "Xử lý tại CustomerPurchaseHistoryView4.jsp" {
   "Nhận customerId\nvà khoảng ngày" as HISTORY_RECEIVE -right-> "Lấy hóa đơn\ncủa khách hàng" as HISTORY_LOAD
 
   "Nhận danh sách\nhóa đơn" as HISTORY_RESULT -right-> "Hiển thị\nlịch sử mua hàng" as HISTORY_SHOW
 }
 
-partition "Xử lý tại gdChiTietHoaDon4.jsp" {
+partition "Xử lý tại SalesOrderDetailView4.jsp" {
   "Nhận orderId, customerId\nvà khoảng ngày" as DETAIL_RECEIVE -right-> "Lấy thông tin\nhóa đơn trong kỳ" as ORDER_LOAD
 
   "Nhận thông tin\nhóa đơn" as ORDER_RESULT -right-> "Lấy các\ndòng hàng" as LINES_LOAD
@@ -60,43 +59,32 @@ partition "Xử lý tại gdChiTietHoaDon4.jsp" {
   "Nhận danh sách\ndòng hàng" as LINES_RESULT -right-> "Hiển thị hóa đơn,\ndòng hàng và tổng tiền" as DETAIL_SHOW
 }
 
-' =========================
-' BẮT ĐẦU VÀ CHUYỂN TRANG
-' =========================
-
+' Bắt đầu và chuyển trang
 (*) -down-> MAIN_RECEIVE
 
 MAIN_SHOW -down->[click Thống kê/Báo cáo] MENU_RECEIVE
-MENU_SHOW -down->[chọn thống kê khách hàng] TK_FORM
-TK_SHOW -down->[click khách hàng] HISTORY_RECEIVE
+MENU_SHOW -down->[chọn thống kê khách hàng] REVENUE_FORM
+REVENUE_SHOW -down->[click khách hàng] HISTORY_RECEIVE
 HISTORY_SHOW -down->[click hóa đơn] DETAIL_RECEIVE
 
-' =========================
-' DAO NGOÀI CÁC KHUNG JSP
-' =========================
+' DAO ngoài các khung JSP
+REVENUE_LOAD -down-> "CustomerRevenueStatisticsDAO4:\ngetCustomerRevenueStatistics(\nstartDate, endDate)" as REVENUE_DAO
 
-TK_LOAD -down-> "TKKhachHangDAO4:\ngetKhachHangTheoDoanhThu(\nngayBatDau, ngayKetThuc)" as TK_DAO
+REVENUE_DAO -down->[lấy xong dữ liệu] REVENUE_RESULT
 
-TK_DAO -down->[lấy xong dữ liệu] TK_RESULT
-
-HISTORY_LOAD -down-> "TKHoaDonDAO4:\ngetHoaDonCuaKhachHang(\ncustomerId, ngayBatDau, ngayKetThuc)" as HISTORY_DAO
+HISTORY_LOAD -down-> "SalesOrderDAO4:\ngetOrdersByCustomer(\ncustomerId, startDate, endDate)" as HISTORY_DAO
 
 HISTORY_DAO -down->[lấy xong dữ liệu] HISTORY_RESULT
 
-ORDER_LOAD -down-> "SalesOrderDAO4:\ngetHoaDonTrongKy(orderId,\ncustomerId, ngayBatDau, ngayKetThuc)" as ORDER_DAO
+ORDER_LOAD -down->[hóa đơn phù hợp] ORDER_RESULT
 
-ORDER_DAO -down->[hóa đơn phù hợp] ORDER_RESULT
-
-LINES_LOAD -down-> "SalesOrderDetailDAO4:\ngetChiTietHoaDon(orderId)" as LINES_DAO
+LINES_LOAD -down-> "SalesOrderDetailDAO4:\ngetOrderDetails(orderId)" as LINES_DAO
 
 LINES_DAO -down->[lấy xong dữ liệu] LINES_RESULT
 
-' =========================
-' QUAY LẠI VÀ KẾT THÚC
-' =========================
-
-TK_SHOW -left->[đổi khoảng ngày] TK_INPUT
-HISTORY_SHOW -left->[quay lại thống kê] TK_SHOW
+' Quay lại và kết thúc
+REVENUE_SHOW -left->[đổi khoảng ngày] REVENUE_INPUT
+HISTORY_SHOW -left->[quay lại thống kê] REVENUE_SHOW
 DETAIL_SHOW -left->[quay lại lịch sử] HISTORY_SHOW
 
 DETAIL_SHOW -down->[kết thúc xem] (*)

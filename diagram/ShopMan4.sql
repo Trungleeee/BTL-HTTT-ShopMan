@@ -1,3 +1,4 @@
+USE shopman;
 CREATE TABLE tblMember4 (
     id INT NOT NULL AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL,
@@ -12,7 +13,8 @@ CREATE TABLE tblMember4 (
 
     PRIMARY KEY (id),
     CONSTRAINT uq_member_username UNIQUE (username)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblManager4 (
     id INT NOT NULL,
@@ -23,7 +25,8 @@ CREATE TABLE tblManager4 (
     CONSTRAINT uq_manager_code UNIQUE (employeeCode),
     CONSTRAINT fk_manager_member
         FOREIGN KEY (id) REFERENCES tblMember4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblSalesStaff4 (
     id INT NOT NULL,
@@ -34,7 +37,8 @@ CREATE TABLE tblSalesStaff4 (
     CONSTRAINT uq_salesstaff_code UNIQUE (employeeCode),
     CONSTRAINT fk_salesstaff_member
         FOREIGN KEY (id) REFERENCES tblMember4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblCustomer4 (
     id INT NOT NULL,
@@ -47,7 +51,8 @@ CREATE TABLE tblCustomer4 (
     CONSTRAINT ck_customer_points CHECK (loyaltyPoints >= 0),
     CONSTRAINT fk_customer_member
         FOREIGN KEY (id) REFERENCES tblMember4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblCategory4 (
     id INT NOT NULL AUTO_INCREMENT,
@@ -57,7 +62,8 @@ CREATE TABLE tblCategory4 (
 
     PRIMARY KEY (id),
     CONSTRAINT uq_category_code UNIQUE (categoryCode)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblProduct4 (
     id INT NOT NULL AUTO_INCREMENT,
@@ -76,7 +82,8 @@ CREATE TABLE tblProduct4 (
     CONSTRAINT ck_product_stock CHECK (stockQuantity >= 0),
     CONSTRAINT fk_product_category
         FOREIGN KEY (categoryId) REFERENCES tblCategory4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblSupplier4 (
     id INT NOT NULL AUTO_INCREMENT,
@@ -85,21 +92,25 @@ CREATE TABLE tblSupplier4 (
     address VARCHAR(255),
     phoneNumber VARCHAR(20),
     email VARCHAR(100),
-    note TEXT,
+    description TEXT,
 
     PRIMARY KEY (id),
     CONSTRAINT uq_supplier_code UNIQUE (supplierCode)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblShoppingCart4 (
     id INT NOT NULL AUTO_INCREMENT,
+    cartCode VARCHAR(30) NOT NULL,
     customerId INT NOT NULL,
 
     PRIMARY KEY (id),
+    CONSTRAINT uq_cart_code UNIQUE (cartCode),
     CONSTRAINT uq_cart_customer UNIQUE (customerId),
     CONSTRAINT fk_cart_customer
         FOREIGN KEY (customerId) REFERENCES tblCustomer4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblCartItem4 (
     id INT NOT NULL AUTO_INCREMENT,
@@ -116,7 +127,8 @@ CREATE TABLE tblCartItem4 (
         REFERENCES tblShoppingCart4(id),
     CONSTRAINT fk_cartitem_product
         FOREIGN KEY (productId) REFERENCES tblProduct4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblSalesOrder4 (
     id INT NOT NULL AUTO_INCREMENT,
@@ -125,7 +137,7 @@ CREATE TABLE tblSalesOrder4 (
     status VARCHAR(30) NOT NULL,
     shippingAddress VARCHAR(255) NOT NULL,
     customerId INT NOT NULL,
-    salesStaffId INT,
+    salesStaffId INT NULL,
 
     PRIMARY KEY (id),
     CONSTRAINT uq_order_code UNIQUE (orderCode),
@@ -133,23 +145,27 @@ CREATE TABLE tblSalesOrder4 (
         FOREIGN KEY (customerId) REFERENCES tblCustomer4(id),
     CONSTRAINT fk_order_salesstaff
         FOREIGN KEY (salesStaffId) REFERENCES tblSalesStaff4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblSalesOrderDetail4 (
     id INT NOT NULL AUTO_INCREMENT,
+    detailCode VARCHAR(30) NOT NULL,
     quantity INT NOT NULL,
     unitPrice DECIMAL(18,2) NOT NULL,
     salesOrderId INT NOT NULL,
     productId INT NOT NULL,
 
     PRIMARY KEY (id),
+    CONSTRAINT uq_orderdetail_code UNIQUE (detailCode),
     CONSTRAINT ck_orderdetail_quantity CHECK (quantity > 0),
     CONSTRAINT ck_orderdetail_price CHECK (unitPrice >= 0),
     CONSTRAINT fk_orderdetail_order
         FOREIGN KEY (salesOrderId) REFERENCES tblSalesOrder4(id),
     CONSTRAINT fk_orderdetail_product
         FOREIGN KEY (productId) REFERENCES tblProduct4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblImportInvoice4 (
     id INT NOT NULL AUTO_INCREMENT,
@@ -164,20 +180,24 @@ CREATE TABLE tblImportInvoice4 (
         FOREIGN KEY (supplierId) REFERENCES tblSupplier4(id),
     CONSTRAINT fk_import_manager
         FOREIGN KEY (managerId) REFERENCES tblManager4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE tblImportInvoiceDetail4 (
     id INT NOT NULL AUTO_INCREMENT,
+    detailCode VARCHAR(30) NOT NULL,
     quantity INT NOT NULL,
     importPrice DECIMAL(18,2) NOT NULL,
     importInvoiceId INT NOT NULL,
     productId INT NOT NULL,
 
     PRIMARY KEY (id),
+    CONSTRAINT uq_importdetail_code UNIQUE (detailCode),
     CONSTRAINT ck_importdetail_quantity CHECK (quantity > 0),
     CONSTRAINT ck_importdetail_price CHECK (importPrice >= 0),
     CONSTRAINT fk_importdetail_invoice
-        FOREIGN KEY (importInvoiceId) REFERENCES tblImportInvoice4(id),
+        FOREIGN KEY (importInvoiceId)
+        REFERENCES tblImportInvoice4(id),
     CONSTRAINT fk_importdetail_product
         FOREIGN KEY (productId) REFERENCES tblProduct4(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

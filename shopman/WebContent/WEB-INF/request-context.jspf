@@ -1,4 +1,4 @@
-<%@ page import="java.util.*,java.time.LocalDate" %>
+<%@ page session="false" import="java.util.*,java.time.LocalDate" %>
 <%!
 private String smJson(Object value) {
     if (value == null) return "null";
@@ -11,8 +11,23 @@ private String smJson(Object value) {
         }
         return result.append('}').toString();
     }
-    return "\"" + String.valueOf(value).replace("\\", "\\\\").replace("\"", "\\\"")
-        .replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t").replace("<", "\\u003c") + "\"";
+    if (value instanceof Number || value instanceof Boolean) return value.toString();
+    if (value instanceof Iterable || value.getClass().isArray()) {
+        StringBuilder result = new StringBuilder("[");
+        Iterable<?> items = value instanceof Iterable ? (Iterable<?>) value : Arrays.asList((Object[]) value);
+        for (Object item : items) {
+            if (result.length() > 1) result.append(',');
+            result.append(smJson(item));
+        }
+        return result.append(']').toString();
+    }
+    StringBuilder result = new StringBuilder("\"");
+    for (char c : String.valueOf(value).toCharArray()) {
+        if (c == '\\' || c == '\"') result.append('\\').append(c);
+        else if (c < 32 || c == '<' || c == '\u2028' || c == '\u2029') result.append(String.format("\\u%04x", (int) c));
+        else result.append(c);
+    }
+    return result.append('\"').toString();
 }
 %>
 <%
@@ -33,7 +48,11 @@ smPaths.put("/quan-ly/khach-hang/lich-su-mua-hang", "purchaseHistory");
 smPaths.put("/quan-ly/hoa-don/chi-tiet", "invoice");
 String smName = smPaths.get(smPath);
 if (smName == null) {
-    String smFallback = smPath.contains("MatHang") || smPath.contains("ChinhKH") ? "/san-pham"
+    String smFallback = smPath.contains("LoginView") ? "/dang-nhap"
+        : smPath.contains("CustomerHomeView4") ? "/cua-hang"
+        : smPath.contains("Product") || smPath.contains("MatHang") || smPath.contains("ChinhKH") ? "/san-pham"
+        : smPath.contains("ManagerHomeView4") ? "/quan-ly"
+        : smPath.contains("CustomerRevenueStatisticsView4") || smPath.contains("CustomerPurchaseHistoryView4") || smPath.contains("SalesOrderDetailView4") ? "/quan-ly/bao-cao/doanh-thu-khach-hang"
         : smPath.contains("DangNhap") ? "/dang-nhap" : "/quan-ly/bao-cao";
     response.sendRedirect(request.getContextPath() + smFallback);
     return;
@@ -65,16 +84,17 @@ if ("POST".equals(request.getMethod())) {
     Map<String, String> smSelection = new LinkedHashMap<String, String>();
     smSelection.put(smIdKey, smId);
     if ("product".equals(smName)) {
-        for (String smKey : Arrays.asList("tuKhoa", "categoryId", "sort", "view")) {
+        for (String smKey : Arrays.asList("tuKhoa", "sort")) {
             String smValue = request.getParameter(smKey);
             if (smValue != null) smSelection.put(smKey, smValue.substring(0, Math.min(150, smValue.length())));
         }
     } else {
         String smStart = request.getParameter("ngayBatDau"), smEnd = request.getParameter("ngayKetThuc");
-        if (smStart == null) smStart = "2026-09-01";
-        if (smEnd == null) smEnd = "2026-09-30";
         try {
-            if (!smStart.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}") || !smEnd.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}") || LocalDate.parse(smStart).isAfter(LocalDate.parse(smEnd))) throw new IllegalArgumentException();
+            if (smStart == null || smEnd == null || !smStart.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")
+                    || !smEnd.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}") || LocalDate.parse(smStart).isAfter(LocalDate.parse(smEnd))) {
+                throw new IllegalArgumentException();
+            }
         } catch (Exception smError) { response.sendError(400, "Khoảng ngày không hợp lệ."); return; }
         smSelection.put("ngayBatDau", smStart);
         smSelection.put("ngayKetThuc", smEnd);
@@ -85,7 +105,11 @@ if ("POST".equals(request.getMethod())) {
                 response.sendError(400, "Vui lòng chọn hóa đơn từ lịch sử mua hàng hiện tại."); return;
             }
             smSelection.put("customerId", smParent.get("customerId"));
-        } else smSession.removeAttribute("shopman.invoice");
+        } else {
+            String smSort = request.getParameter("sort");
+            if ("ascending".equals(smSort) || "descending".equals(smSort)) smSelection.put("sort", smSort);
+            smSession.removeAttribute("shopman.invoice");
+        }
     }
     smSession.setAttribute("shopman." + smName, smSelection);
     response.setStatus(303);
@@ -96,5 +120,9 @@ Map<String, Object> smContext = new LinkedHashMap<String, Object>();
 smContext.put("user", smUser);
 Object smSelection = smSession == null ? null : smSession.getAttribute("shopman." + smName);
 smContext.put("selection", smSelection == null ? Collections.emptyMap() : smSelection);
+request.setAttribute("shopmanContext", smJson(smContext));
+%>
+<%@ include file="database-context.jspf" %>
+<%
 request.setAttribute("shopmanContext", smJson(smContext));
 %>

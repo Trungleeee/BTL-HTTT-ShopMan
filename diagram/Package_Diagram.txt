@@ -1,45 +1,59 @@
 @startuml
 skinparam PackageStyle folder
 skinparam ClassAttributeIconSize 0
+skinparam backgroundColor white
+skinparam monochrome true
+skinparam shadowing false
 
-package "view" {
-    package "view.customer" {
-        class "gdChinhKH4.jsp"
-        class "gdTimKiemMatHang4.jsp"
-        class "gdChiTietMatHang4.jsp"
+hide empty members
+
+package "view" as VIEW {
+    package "view.customer" as CUSTOMER_VIEW {
+        class "CustomerHomeView4.jsp"
+        class "ProductSearchView4.jsp"
+        class "ProductDetailView4.jsp"
     }
-    package "view.manager" {
-        class "gdChinhQL4.jsp"
-        class "gdChonTK4.jsp"
-        class "gdTKKhachHang4.jsp"
-        class "gdLichSuMuaHang4.jsp"
-        class "gdChiTietHoaDon4.jsp"
+
+    package "view.manager" as MANAGER_VIEW {
+        class "ManagerHomeView4.jsp"
+        class "StatisticsSelectionView4.jsp"
+        class "CustomerRevenueStatisticsView4.jsp"
+        class "CustomerPurchaseHistoryView4.jsp"
+        class "SalesOrderDetailView4.jsp"
     }
 }
 
-package "dao" {
+package "dao" as DAO {
     class DAO4
     class ProductDAO4
-    class TKKhachHangDAO4
-    class TKHoaDonDAO4
+    class CustomerRevenueStatisticsDAO4
     class SalesOrderDAO4
     class SalesOrderDetailDAO4
 }
 
-package "model" {
-    class Member4
+package "model" as MODEL {
+    abstract class Member4
     class Customer4
     class Manager4
     class SalesStaff4
+
     class Category4
     class Product4
     class SalesOrder4
     class SalesOrderDetail4
-    class TKKhachHangTheoDoanhThu4
-    class TKHoaDon4
+
+    class Supplier4
+    class ImportInvoice4
+    class ImportInvoiceDetail4
+    class ShoppingCart4
+    class CartItem4
+
+    class CustomerRevenueStatistics4
+    class StoreOverviewStatistics4
 }
 
-"view" ..> "dao" : <<use>>
-"view" ..> "model" : <<use>>
-"dao" ..> "model" : <<use>>
+VIEW -- DAO : <<use>>
+VIEW -- MODEL : <<use>>
+DAO -- MODEL : <<use>>
+
 @enduml

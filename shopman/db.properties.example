@@ -1,0 +1,5 @@
+# Copy this template OUTSIDE the repository and supply SHOPMAN_DB_CONFIG.
+# The DDL does not specify a database name: replace REPLACE_DATABASE.
+url=jdbc:mysql://127.0.0.1:3306/REPLACE_DATABASE?characterEncoding=UTF-8
+user=
+password=
