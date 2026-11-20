@@ -1,0 +1,49 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SM9478765b98896d
+title 19. M1 - Hoạt động thiết kế tìm kiếm
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+skinparam state {
+  RoundCorner 20
+}
+state "Xử lý tại CustomerHomeView4.jsp" as e1 {
+  state "Nhận thông tin khách hàng\n tại trang chính" as e6
+  state "Hiển thị giao diện chính" as e7
+}
+state "Xử lý tại ProductSearchView4.jsp" as e2 {
+  state "Nhận thông tin khách hàng\n tại trang tìm kiếm" as e8
+  state "Hiển thị giao diện tìm kiếm" as e9
+  state "Nhận từ khóa" as e10
+  state "Lấy danh sách mặt hàng" as e11
+  state "Nhận danh sách mặt hàng" as e12
+  state "Hiển thị kết quả tìm kiếm" as e13
+}
+state "Xử lý tại ProductDetailView4.jsp" as e3 {
+  state "Nhận productId" as e14
+  state "Lấy thông tin mặt hàng" as e15
+  state "Nhận thông tin mặt hàng" as e16
+  state "Hiển thị chi tiết mặt hàng" as e17
+}
+state "ProductDAO4:\ngetProductsByKeyword(keyword)" as e18
+state "ProductDAO4:\ngetProductById(productId)" as e19
+e6 --> e7
+e8 --> e9
+e9 --> e10 : [nhập từ khóa và click tìm kiếm]
+e10 --> e11
+e12 --> e13
+e14 --> e15
+e16 --> e17
+[*] --> e6
+e7 --> e8 : [click tìm kiếm]
+e13 --> e14 : [click một mặt hàng]
+e11 --> e18
+e18 --> e12 : [lấy xong dữ liệu]
+e15 --> e19
+e19 --> e16 : [lấy xong dữ liệu]
+e13 --> e10 : [tìm kiếm lại]
+e17 --> e13 : [click quay lại]
+e17 --> [*] : [kết thúc xem]
+@enduml

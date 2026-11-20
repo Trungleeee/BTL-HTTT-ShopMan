@@ -1,0 +1,43 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SM7d4fee321e9b18
+title 12. M2 - Giao tiếp thống kê doanh thu
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+left to right direction
+allowmixing
+actor "Manager4" as e1
+object "ManagerHomeView4" as e2 <<boundary>>
+object "StatisticsSelectionView4" as e3 <<boundary>>
+object "CustomerRevenueStatisticsView4" as e4 <<boundary>>
+object "CustomerPurchaseHistoryView4" as e5 <<boundary>>
+object "SalesOrderDetailView4" as e7 <<boundary>>
+object "Customer4" as e10 <<entity>>
+object "SalesOrder4" as e12 <<entity>>
+object "SalesOrderDetail4" as e14 <<entity>>
+e4 -> e10 : 8: call
+e10 -> e4 : 10: return CustomerRevenueStatistics4 list
+e4 -> e1 : 11: show revenues
+e1 -> e4 : 12: select customer
+e5 -> e12 : 14: call
+e5 -> e1 : 17: show customer, dates and orders
+e1 -> e5 : 18: select order
+e7 -> e14 : 20: call
+e7 -> e1 : 23: show order details
+e12 -> e12 : 15: getOrdersByCustomer(customer, startDate, endDate)
+e1 -> e2 : 1: select statistics
+e12 -> e5 : 16: return orders
+e14 -> e7 : 22: return order details
+e5 -> e7 : 19: call
+e4 -> e5 : 13: call
+e3 -> e4 : 5: call
+e2 -> e3 : 2: call
+e10 -> e10 : 9: getCustomerRevenueStatistics(startDate, endDate)
+e14 -> e14 : 21: getOrderDetails(salesOder)
+e1 -> e3 : 4: select customer revenue
+e3 -> e1 : 3: show statistics types
+e1 -> e4 : 7: enter dates and view statistics
+e4 -> e1 : 6: show date inputs
+@enduml

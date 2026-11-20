@@ -1,0 +1,33 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SM2ad43e760d699b
+title 11. M1 - Giao tiếp tìm kiếm mặt hàng
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+left to right direction
+allowmixing
+actor "Customer4" as e1
+object "ProductSearchView4" as e3 <<boundary>>
+object "CustomerHomeView4" as e5 <<boundary>>
+object "product4" as e10 <<entity>>
+object "ProductDetailView4" as e20 <<boundary>>
+e5 -> e3 : 2: call
+e1 -> e5 : 1: select search
+e3 -> e10 : 8: call
+e1 -> e3 : 7: search(keyword)
+e10 -> e10 : 9: getProductsByKeyword(keyword)
+e10 -> e3 : 10: return products
+e10 -> e20 : 16: return details
+e10 -> e10 : 15: getProductDetails(product)
+e20 -> e10 : 14: call
+e3 -> e20 : 13: call
+e1 -> e3 : 12: select(productId)
+e20 -> e1 : 17: show details
+e10 -> e3 : 5: return products
+e10 -> e10 : 4: getProductsByKeyword("")
+e3 -> e10 : 3: call
+e3 -> e1 : 6: show products
+e3 -> e1 : 11: show results
+@enduml

@@ -18,7 +18,7 @@ public class CartItem4 {
     public void setId(int id) { this.id = id; }
 
     public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { if (quantity < 0) throw new IllegalArgumentException("quantity must be non-negative"); this.quantity = quantity; }
+    public void setQuantity(int quantity) { if (quantity <= 0) throw new IllegalArgumentException("quantity must be positive"); this.quantity = quantity; }
 
     public Product4 getProduct() { return product; }
     public void setProduct(Product4 product) { this.product = product; }

@@ -1,0 +1,24 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SMbffb603854b2dd
+title 05. M2 - Use case chi tiết thống kê doanh thu
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+left to right direction
+rectangle "ShopMan - Customer Revenue Statistics Module" as e1 {
+  usecase "Login4\n(Đăng nhập)" as e2
+  usecase "ViewCustomerRevenueStatistics4\n(Thống kê khách hàng\ntheo doanh thu)" as e3
+  usecase "ViewCustomerPurchaseHistory4\n(Xem lịch sử mua hàng\ncủa khách hàng)" as e4
+  usecase "ViewOrderDetail4\n(Xem chi tiết hóa đơn)" as e5
+}
+actor "Member4\n(Thành viên)" as e6
+actor "Manager4\n(Nhân viên quản lý)" as e7
+e6 <|-- e7
+e6 -- e2
+e7 -- e3
+e3 ..> e2 : <<include>>
+e4 <.. e5 : <<extend>>
+e3 <.. e4 : <<extend>>
+@enduml

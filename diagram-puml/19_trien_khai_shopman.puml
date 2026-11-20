@@ -1,0 +1,34 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SMb69175f4d1c20e
+title 22. Triển khai ShopMan
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+left to right direction
+node "Client Machine (PC / Laptop)" as e1 <<device>> {
+  node "Web Browser" as e2 <<executionEnvironment>> {
+    artifact "HTML / CSS / JS (Rendered Views)" as e8
+  }
+}
+node "J2EE Application Server" as e3 <<device>> {
+  node "Apache Tomcat (Servlet/JSP Container)" as e4 <<executionEnvironment>> {
+    artifact "ShopMan.war" as e5 <<artifact>> {
+      component "view (JSP Pages)" as e9
+      component "dao (DAO Classes)" as e10
+      component "model (Entity Classes)" as e11
+    }
+  }
+}
+node "Database Server" as e6 <<device>> {
+  node "MySQL RDBMS" as e7 <<executionEnvironment>> {
+    artifact "shopman_db (tblMember4, tblProduct4, tblSalesOrder4...)" as e12
+  }
+}
+e9 ..> e10
+e9 ..> e11
+e10 ..> e11
+e2 -- e4 : HTTP / HTTPS\n(TCP/IP)
+e4 -- e7 : JDBC\n(TCP/IP - Port 3306)
+@enduml

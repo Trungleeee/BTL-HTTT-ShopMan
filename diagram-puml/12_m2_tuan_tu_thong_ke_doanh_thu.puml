@@ -1,0 +1,55 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SMfcd3b4a902b4b3
+title 14. M2 - Tuần tự thống kê doanh thu
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+actor "Manager" as e1
+participant "ManagerHomeView4.jsp" as e2 <<boundary>>
+participant "StatisticsSelectionView4.jsp" as e3 <<boundary>>
+participant "CustomerRevenueStatisticsView4.jsp" as e4 <<boundary>>
+participant "CustomerPurchaseHistoryView4.jsp" as e5 <<boundary>>
+participant "SalesOrderDetailView4.jsp" as e6 <<boundary>>
+participant "CustomerRevenueStatisticsDAO4" as e7 <<control>>
+participant "SalesOrderDAO4" as e8 <<control>>
+participant "SalesOrderDetailDAO4" as e9 <<control>>
+participant "CustomerRevenueStatistics4" as e10 <<entity>>
+participant "SalesOrder4" as e11 <<entity>>
+participant "SalesOrderDetail4" as e12 <<entity>>
+e1 -> e2 : 1: select Statistics
+e2 -> e3 : 2: call
+e3 --> e1 : 3: display statistics types
+e1 -> e3 : 4: select Customer Revenue Statistics
+e3 -> e4 : 5: call
+e4 --> e1 : 6: display
+e1 -> e4 : 7: enter date range and click View Statistics
+e4 -> e4 : 8: validate date range
+e4 -> e7 : 9: call
+e7 -> e7 : 10: getCustomerRevenueStatistics(startDate, endDate)
+e7 -> e10 : 11: call
+e10 -> e10 : 12: CustomerRevenueStatistics4()
+e10 --> e7 : 13: return
+e7 --> e4 : 14: return: CustomerRevenueStatistics4[]
+e4 --> e1 : 15: display
+e1 -> e4 : 16: select a customer
+e4 -> e5 : 17: call
+e5 -> e8 : 18: call
+e8 -> e8 : 19: getOrdersByCustomer(customerId, startDate, endDate)
+e8 -> e11 : 20: call
+e11 -> e11 : 21: SalesOrder4()
+e11 --> e8 : 22: return
+e8 --> e5 : 23: return: SalesOrder4[]
+e5 --> e1 : 24: display
+e1 -> e5 : 25: select an order
+e5 -> e6 : 26: call
+e6 -> e6 : 27: get order
+e6 -> e9 : 28: call
+e9 -> e9 : 29: getOrderDetails(orderId)
+e9 -> e12 : 30: call
+e12 -> e12 : 31: SalesOrderDetail4()
+e12 --> e9 : 32: return
+e9 --> e6 : 33: return: SalesOrderDetail4[]
+e6 --> e1 : 34: display
+@enduml

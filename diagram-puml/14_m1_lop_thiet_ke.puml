@@ -1,0 +1,59 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SMb1263377a01de5
+title 17. M1 - Lớp thiết kế
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+left to right direction
+class "CustomerHomeView4.jsp" as e1 {
+  subSearchProducts : Link
+}
+class "ProductSearchView4.jsp" as e2 {
+  inKeyword : TextInput
+  inSort : List
+  outProductList : Table
+  outMessage : String
+  subSearch : Button
+  subSelectProduct : Button
+  keyword : String
+  products : Product4[]
+}
+class "ProductDetailView4.jsp" as e3 {
+  outProductDetails : Product4
+  outCategoryName : String
+  inQuantity : int
+  subOrder : button
+  outMessage : String
+  subBack : Link
+  productId : int
+  keyword : String
+}
+class "DAO4" as e4 {
+  #connection : Connection
+  +DAO4()
+}
+class "ProductDAO4" as e5 {
+  +ProductDAO4()
+  +getProductsByKeyword(keyword : String) : Product4[]
+  +getProductById(productId : int) : Product4
+}
+class "Product4" as e6 {
+  id : int
+  productCode : String
+  productName : String
+  sellingPrice : BigDecimal
+  stockQuantity : int
+  description : String
+  imageUrl : String
+  unit : String
+  category : Category4
+}
+e1 -- e2
+e2 -- e3
+e2 -- e5
+e3 -- e5
+e4 <|-- e5
+e5 -- e6
+@enduml

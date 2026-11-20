@@ -84,11 +84,11 @@ assert.equal((await data.getMatHangTheoId(1)).sellingPrice, 15000000, 'Returned 
 const products = await data.getMatHangTheoTen('');
 for (const p of products) await access(path.join(root, p.imageUrl));
 
-const pages = (await readdir(root)).filter(name => name.endsWith('.jsp') && name !== 'doDangNhap.jsp');
+const pages = (await readdir(root)).filter(name => name.endsWith('.jsp') && name !== 'SessionHandler.jsp');
 assert.equal(pages.filter(name => name.endsWith('View4.jsp')).length, 8);
 assert.ok(pages.includes('LoginView.jsp'));
 const webXml = await readFile(path.join(root, 'WEB-INF/web.xml'), 'utf8');
-assert.match(webXml, /<servlet-name>session<\/servlet-name>\s*<jsp-file>\/doDangNhap\.jsp<\/jsp-file>/);
+assert.match(webXml, /<servlet-name>session<\/servlet-name>\s*<jsp-file>\/SessionHandler\.jsp<\/jsp-file>/);
 assert.match(webXml, /<servlet-name>session<\/servlet-name>\s*<url-pattern>\/api\/session<\/url-pattern>/);
 let scripts = 0, links = 0;
 for (const file of pages) {

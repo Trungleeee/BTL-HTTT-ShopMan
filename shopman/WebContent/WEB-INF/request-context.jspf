@@ -53,7 +53,7 @@ if (smName == null) {
         : smPath.contains("Product") || smPath.contains("MatHang") || smPath.contains("ChinhKH") ? "/san-pham"
         : smPath.contains("ManagerHomeView4") ? "/quan-ly"
         : smPath.contains("CustomerRevenueStatisticsView4") || smPath.contains("CustomerPurchaseHistoryView4") || smPath.contains("SalesOrderDetailView4") ? "/quan-ly/bao-cao/doanh-thu-khach-hang"
-        : smPath.contains("DangNhap") ? "/dang-nhap" : "/quan-ly/bao-cao";
+        : "/quan-ly/bao-cao";
     response.sendRedirect(request.getContextPath() + smFallback);
     return;
 }

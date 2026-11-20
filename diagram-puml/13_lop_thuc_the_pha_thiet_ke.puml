@@ -1,0 +1,128 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SM4625cd11c97b1e
+title 15. Lớp thực thể pha thiết kế
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+left to right direction
+abstract class "Member4" as e1 {
+  id : int
+  username : String
+  password : String
+  fullName : String
+  dateOfBirth : LocalDate
+  address : String
+  phoneNumber : String
+  email : String
+  role : String
+  note : String
+}
+class "Manager4" as e2 {
+  employeeCode : String
+  position : String
+}
+class "SalesStaff4" as e3 {
+  employeeCode : String
+  workShift : String
+}
+class "Customer4" as e4 {
+  customerCode : String
+  defaultShippingAddress : String
+  loyaltyPoints : int
+}
+class "Category4" as e5 {
+  id : int
+  categoryCode : String
+  categoryName : String
+  description : String
+}
+class "Product4" as e6 {
+  id : int
+  productCode : String
+  productName : String
+  sellingPrice : BigDecimal
+  stockQuantity : int
+  description : String
+  imageUrl : String
+  unit : String
+  category : Category4
+}
+class "Supplier4" as e7 {
+  id : int
+  supplierCode : String
+  supplierName : String
+  address : String
+  phoneNumber : String
+  email : String
+  description : String
+}
+class "ShoppingCart4" as e8 {
+  id : int
+  cartCode : String
+  customer : Customer4
+  items : List<CartItem4>
+}
+class "CartItem4" as e9 {
+  id : int
+  quantity : int
+  product : Product4
+}
+class "SalesOrder4" as e10 {
+  id : int
+  orderCode : String
+  orderDate : LocalDateTime
+  status : String
+  shippingAddress : String
+  /totalAmount : BigDecimal
+  customer : Customer4
+  approvedBy : SalesStaff4
+  details : List<SalesOrderDetail4>
+}
+class "SalesOrderDetail4" as e11 {
+  id : int
+  detailCode : String
+  unitPrice : BigDecimal
+  quantity : int
+  /lineTotal : BigDecimal
+  product : Product4
+}
+class "ImportInvoice4" as e12 {
+  id : int
+  invoiceNumber : String
+  importDate : LocalDateTime
+  /totalAmount : BigDecimal
+  supplier : Supplier4
+  createdBy : Manager4
+  details : List<ImportInvoiceDetail4>
+}
+class "ImportInvoiceDetail4" as e13 {
+  id : int
+  detailCode : String
+  quantity : int
+  importPrice : BigDecimal
+  /lineTotal : BigDecimal
+  product : Product4
+}
+class "CustomerRevenueStatistics4" as e14 {
+  /totalRevenue : BigDecimal
+  /orderCount : int
+}
+e1 <|-- e2
+e1 <|-- e3
+e1 <|-- e4
+e4 <|-- e14
+e6 "0..*" -- "1" e5
+e4 "1" -- "1" e8
+e4 "1" -- "0..*" e10
+e3 "0..1" -- "0..*" e10
+e7 "1" -- "0..*" e12
+e2 "1" -- "0..*" e12
+e8 "1" *-- "0..*" e9
+e10 "1" *-- "1..*" e11
+e12 "1" *-- "1..*" e13
+e9 "0..*" o-- "1" e6
+e11 "0..*" o-- "1" e6
+e13 "0..*" o-- "1" e6
+@enduml

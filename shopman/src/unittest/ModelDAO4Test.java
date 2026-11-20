@@ -16,6 +16,25 @@ public class ModelDAO4Test {
     private static final LocalDate START = LocalDate.of(2026, 9, 1);
     private static final LocalDate END = LocalDate.of(2026, 9, 30);
 
+    @Test public void detailQuantitiesMustBePositive() {
+        CartItem4 cartItem = new CartItem4();
+        SalesOrderDetail4 salesDetail = new SalesOrderDetail4();
+        ImportInvoiceDetail4 importDetail = new ImportInvoiceDetail4();
+        for (int quantity : new int[]{Integer.MIN_VALUE, -1, 0}) {
+            assertThrows(IllegalArgumentException.class, () -> cartItem.setQuantity(quantity));
+            assertThrows(IllegalArgumentException.class, () -> salesDetail.setQuantity(quantity));
+            assertThrows(IllegalArgumentException.class, () -> importDetail.setQuantity(quantity));
+        }
+        for (int quantity : new int[]{1, Integer.MAX_VALUE}) {
+            cartItem.setQuantity(quantity);
+            salesDetail.setQuantity(quantity);
+            importDetail.setQuantity(quantity);
+            assertEquals(quantity, cartItem.getQuantity());
+            assertEquals(quantity, salesDetail.getQuantity());
+            assertEquals(quantity, importDetail.getQuantity());
+        }
+    }
+
     @Test public void salesTotalUsesTransactionPriceAndReflectsLoadedDetails() {
         Product4 product = new Product4(); product.setSellingPrice(money("15000000"));
         SalesOrderDetail4 detail = new SalesOrderDetail4(); detail.setProduct(product); detail.setQuantity(2); detail.setUnitPrice(money("12500000"));

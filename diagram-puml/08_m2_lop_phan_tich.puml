@@ -100,7 +100,6 @@ class SalesOrder4 {
   - totalAmount
   - shippingAddress
   --
-  + getStoreOverview()
   + getOrdersByCustomer(customer, startDate, endDate)
 }
 
@@ -134,21 +133,12 @@ class CustomerRevenueStatistics4 {
   - /orderCount
 }
 
-class StoreOverviewStatistics4 {
-  - /totalRevenue
-  - /totalOrderCount
-  - /shippingOrderCount
-  - /cancelledOrderCount
-  - /monthlyRevenue
-}
-
 ManagerHomeView4 -down- StatisticsSelectionView4
 StatisticsSelectionView4 -down- CustomerRevenueStatisticsView4
 CustomerRevenueStatisticsView4 -down- CustomerPurchaseHistoryView4
 CustomerPurchaseHistoryView4 -down- SalesOrderDetailView4
 
 ManagerHomeView4 -- SalesOrder4
-ManagerHomeView4 -- StoreOverviewStatistics4
 
 CustomerRevenueStatisticsView4 -- Customer4
 CustomerRevenueStatisticsView4 -- CustomerRevenueStatistics4

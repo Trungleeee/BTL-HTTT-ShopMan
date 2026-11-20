@@ -1,0 +1,155 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SM45b0094cc54972
+title 18. M2 - Lớp thiết kế
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+left to right direction
+class "ManagerHomeView4.jsp" as e1 {
+  subViewStatistics : Link
+}
+class "StatisticsSelectionView4.jsp" as e2 {
+  outStatisticsTypeList : Select
+  subCustomerRevenueStatistics : Link
+}
+class "CustomerRevenueStatisticsView4.jsp" as e3 {
+  inStartDate : DateInput
+  inEndDate : DateInput
+  outCustomerRevenueList : Table
+  outMessage : String
+  inSort : List
+  subViewStatistics : Button
+  subSelectCustomer : Link
+  subBack : Link
+  startDate : LocalDate
+  endDate : LocalDate
+  revenueResults : CustomerRevenueStatistics4[]
+}
+class "CustomerPurchaseHistoryView4.jsp" as e4 {
+  outCustomerDetails : Customer4
+  outDateRange : String
+  outOrderList : Table
+  outMessage : String
+  subSelectOrder : Link
+  subBack : Link
+  customerId : int
+  startDate : LocalDate
+  endDate : LocalDate
+  orders : SalesOrder4[]
+}
+class "SalesOrderDetailView4.jsp" as e5 {
+  outOrderInformation : SalesOrder4
+  outOrderDetailList : Table
+  outLineCount : int
+  outTotalQuantity : int
+  outTotalAmount : BigDecimal
+  outMessage : String
+  subBack : Link
+  orderId : int
+  customerId : int
+  startDate : LocalDate
+  endDate : LocalDate
+  orderDetails : SalesOrderDetail4[]
+}
+class "DAO4" as e6 {
+  #connection : Connection
+  +DAO4()
+}
+class "CustomerRevenueStatisticsDAO4" as e7 {
+  +CustomerRevenueStatisticsDAO4()
+  +getCustomerRevenueStatistics(startDate : LocalDate, endDate : LocalDate) : CustomerRevenueStatistics4[]
+}
+class "SalesOrderDAO4" as e8 {
+  +SalesOrderDAO4()
+  +getOrdersByCustomer(customerId : int, startDate : LocalDate, endDate : LocalDate) : SalesOrder4[]
+}
+class "SalesOrderDetailDAO4" as e9 {
+  +SalesOrderDetailDAO4()
+  +getOrderDetails(orderId : int) : SalesOrderDetail4[]
+}
+abstract class "Member4" as e10 {
+  id : int
+  username : String
+  password : String
+  fullName : String
+  dateOfBirth : LocalDate
+  address : String
+  phoneNumber : String
+  email : String
+  role : String
+  note : String
+}
+class "Customer4" as e11 {
+  customerCode : String
+  defaultShippingAddress : String
+  loyaltyPoints : int
+}
+class "SalesStaff4" as e12 {
+  employeeCode : String
+  workShift : String
+}
+class "CustomerRevenueStatistics4" as e13 {
+  /totalRevenue : BigDecimal
+  /orderCount : int
+}
+class "SalesOrder4" as e14 {
+  id : int
+  orderCode : String
+  orderDate : LocalDateTime
+  status : String
+  shippingAddress : String
+  /totalAmount : BigDecimal
+  customer : Customer4
+  approvedBy : SalesStaff4
+  details : List<SalesOrderDetail4>
+}
+class "SalesOrderDetail4" as e15 {
+  id : int
+  detailCode : String
+  quantity : int
+  unitPrice : BigDecimal
+  /lineTotal : BigDecimal
+  product : Product4
+}
+class "Product4" as e16 {
+  id : int
+  productCode : String
+  productName : String
+  sellingPrice : BigDecimal
+  stockQuantity : int
+  description : String
+  imageUrl : String
+  unit : String
+  category : Category4
+}
+class "Category4" as e17 {
+  id : int
+  categoryCode : String
+  categoryName : String
+  description : String
+}
+e1 -- e2
+e2 -- e3
+e3 -- e4
+e4 -- e5
+e3 -- e7
+e4 -- e8
+e5 -- e8
+e5 -- e9
+e6 <|-- e7
+e6 <|-- e8
+e6 <|-- e9
+e7 -- e13
+e8 -- e14
+e9 -- e15
+e10 <|-- e11
+e10 <|-- e12
+e11 <|-- e13
+e11 "1" -- "0..*" e14
+e12 "0..1" -- "0..*" e14
+e14 "1" *-- "1..*" e15
+e15 "0..*" o-- "1" e16
+e16 "0..*" -- "1" e17
+@enduml

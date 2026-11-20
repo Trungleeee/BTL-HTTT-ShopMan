@@ -1,0 +1,43 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SM957859c0f6c198
+title 13. M1 - Tuần tự tìm kiếm mặt hàng
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+actor "Customer" as e1
+participant "CustomerHomeView4.jsp" as e2 <<boundary>>
+participant "ProductSearchView4.jsp" as e3 <<boundary>>
+participant "ProductDetailView4.jsp" as e4 <<boundary>>
+participant "ProductDAO4" as e5 <<control>>
+participant "Product4" as e6 <<entity>>
+e1 -> e2 : 1: select Product Search
+e2 -> e3 : 2: call
+e3 -> e5 : 3: call
+e5 -> e5 : 4: getProductsByKeyword("")
+e5 -> e6 : 5: call
+e6 -> e6 : 6: Product4()
+e6 --> e5 : 7: return
+e5 --> e3 : 8: return: Product4[]
+e3 --> e1 : 9: display search form
+e1 -> e3 : 10: enter keyword and click Search
+e3 -> e3 : 11: trim and validate keyword
+e3 -> e5 : 12: call
+e5 -> e5 : 13: getProductsByKeyword(keyword)
+e5 -> e6 : 14: call
+e6 -> e6 : 15: Product4()
+e6 --> e5 : 16: return
+e5 --> e3 : 17: return: Product4[]
+e3 --> e1 : 18: display product list
+e1 -> e3 : 19: select a product
+e3 -> e4 : 20: call
+e4 -> e4 : 21: receive productId 
+e4 -> e5 : 22: call
+e5 -> e5 : 23: getProductById(productId)
+e5 -> e6 : 24: call
+e6 -> e6 : 25: Product4()
+e6 --> e5 : 26: return
+e5 --> e4 : 27: return: Product4
+e4 --> e1 : 28: display product details
+@enduml

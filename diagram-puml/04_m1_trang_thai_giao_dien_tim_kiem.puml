@@ -1,0 +1,17 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SMe68aa2c1f837ca
+title 06. M1 - Trạng thái giao diện tìm kiếm
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+state "Hiển thị GD chính KH" as e1
+state "Hiển thị GD tìm kiếm\nsản phẩm" as e2
+state "Hiển thị GD chi tiết\nsản phẩm" as e3
+[*] --> e1 : Bắt đầu
+e1 --> e2 : [chọn chức năng tìm kiếm sản phẩm]
+e2 --> e2 : [nhập từ khóa\nvà chọn tìm kiếm]
+e2 --> e3 : [chọn 1 sản phẩm]
+e3 --> [*] : [kết thúc xem chi tiết]
+@enduml

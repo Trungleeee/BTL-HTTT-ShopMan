@@ -32,9 +32,9 @@ try {
     return response.headers.get('set-cookie').split(';')[0];
   };
   const manager = await signIn('manager'), customer = await signIn('customer');
-  assert.equal((await request('/doDangNhap.jsp')).status, 405, 'Login handler only accepts POST');
-  assert.equal((await request('/doDangNhap.jsp', '', { action: 'login', username: 'Admin', password: 'wrong' })).status, 401);
-  assert.equal((await request('/doDangNhap.jsp', '', { action: 'logout' }, 'https://evil.example')).status, 403);
+  assert.equal((await request('/SessionHandler.jsp')).status, 405, 'Session handler only accepts POST');
+  assert.equal((await request('/SessionHandler.jsp', '', { action: 'login', username: 'Admin', password: 'wrong' })).status, 401);
+  assert.equal((await request('/SessionHandler.jsp', '', { action: 'logout' }, 'https://evil.example')).status, 403);
   const protectedPaths = ['/cua-hang', '/san-pham', '/san-pham/chi-tiet', '/quan-ly', '/quan-ly/bao-cao', '/quan-ly/bao-cao/doanh-thu-khach-hang', '/quan-ly/khach-hang/lich-su-mua-hang', '/quan-ly/hoa-don/chi-tiet'];
   for (const pathname of protectedPaths) {
     const response = await request(pathname);
@@ -72,7 +72,7 @@ try {
   let context = readContext(await (await request(path, manager)).text());
   assert.equal(context.selection.customerId, '1');
   assert.equal(context.selection.sort, 'ascending', 'History preserves the revenue sort for the return link');
-  const secondManager = await signIn('manager', '/doDangNhap.jsp');
+  const secondManager = await signIn('manager', '/SessionHandler.jsp');
   assert.deepEqual(readContext(await (await request(path, secondManager)).text()).selection, {}, 'Selection isolated between sessions');
   const invoicePost = await request(invoice, manager, { ...selection, orderId: '17' });
   assert.equal(invoicePost.status, 303);

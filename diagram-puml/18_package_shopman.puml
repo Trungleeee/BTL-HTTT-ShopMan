@@ -1,0 +1,50 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SM42490514a723be
+title 21. Package ShopMan
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+left to right direction
+package "view" as e1 {
+  package "view.customer" as e2 {
+    class "CustomerHomeView4.jsp" as e6
+    class "ProductSearchView4.jsp" as e7
+    class "ProductDetailView4.jsp" as e8
+  }
+  package "view.manager" as e3 {
+    class "ManagerHomeView4.jsp" as e9
+    class "StatisticsSelectionView4.jsp" as e10
+    class "CustomerRevenueStatisticsView4.jsp" as e11
+    class "CustomerPurchaseHistoryView4.jsp" as e12
+    class "SalesOrderDetailView4.jsp" as e13
+  }
+}
+package "dao" as e4 {
+  class "DAO4" as e14
+  class "ProductDAO4" as e15
+  class "CustomerRevenueStatisticsDAO4" as e16
+  class "SalesOrderDAO4" as e17
+  class "SalesOrderDetailDAO4" as e18
+}
+package "model" as e5 {
+  abstract class "Member4" as e19
+  class "Customer4" as e20
+  class "Manager4" as e21
+  class "SalesStaff4" as e22
+  class "Category4" as e23
+  class "Product4" as e24
+  class "SalesOrder4" as e25
+  class "SalesOrderDetail4" as e26
+  class "CustomerRevenueStatistics4" as e27
+  class "Supplier4" as e28
+  class "ImportInvoice4" as e29
+  class "ImportInvoiceDetail4" as e30
+  class "ShoppingCart4" as e31
+  class "CartItem4" as e32
+}
+e1 -- e4
+e1 -- e5
+e5 -- e4
+@enduml

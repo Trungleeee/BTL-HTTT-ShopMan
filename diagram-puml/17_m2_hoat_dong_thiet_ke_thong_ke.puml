@@ -1,0 +1,70 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SM70e6c4f8d376f9
+title 20. M2 - Hoạt động thiết kế thống kê
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+skinparam state {
+  RoundCorner 20
+}
+state "Xử lý tại ManagerHomeView4.jsp" as e1 {
+  state "Nhận thông tin\nquản lý" as e8
+  state "Hiển thị\ntrang chính" as e9
+}
+state "Xử lý tại StatisticsSelectionView4.jsp" as e2 {
+  state "Nhận thông tin\nquản lý  " as e10
+  state "Hiển thị các\nloại thống kê" as e11
+}
+state "Xử lý tại CustomerRevenueStatisticsView4.jsp" as e3 {
+  state "Nhận thông tin\nquản lý và hiển thị bộ lọc" as e12
+  state "Nhận\nkhoảng ngày" as e13
+  state "Lấy thống kê\nkhách hàng" as e14
+  state "Nhận kết quả\nthống kê" as e15
+  state "Hiển thị khách hàng\nvà doanh thu giảm dần" as e16
+}
+state "Xử lý tại CustomerPurchaseHistoryView4.jsp" as e4 {
+  state "Nhận customerId\nvà khoảng ngày" as e17
+  state "Lấy hóa đơn\ncủa khách hàng" as e18
+  state "Nhận danh sách\nhóa đơn" as e19
+  state "Hiển thị\nlịch sử mua hàng" as e20
+}
+state "Xử lý tại SalesOrderDetailView4.jsp" as e5 {
+  state "Nhận orderId, customerId\nvà khoảng ngày" as e21
+  state "Lấy thông tin\nhóa đơn trong kỳ" as e22
+  state "Nhận thông tin\nhóa đơn" as e23
+  state "Lấy các\ndòng hàng" as e24
+  state "Nhận danh sách\ndòng hàng" as e25
+  state "Hiển thị hóa đơn,\ndòng hàng và tổng tiền" as e26
+}
+state "CustomerRevenueStatisticsDAO4:\ngetCustomerRevenueStatistics(\nstartDate, endDate)" as e27
+state "SalesOrderDAO4:\ngetOrdersByCustomer(\ncustomerId, startDate, endDate)" as e28
+state "SalesOrderDetailDAO4:\ngetOrderDetails(orderId)" as e29
+e8 --> e9
+e10 --> e11
+e12 --> e13 : [nhập ngày, click xem]
+e13 --> e14
+e15 --> e16
+e17 --> e18
+e19 --> e20
+e21 --> e22
+e23 --> e24
+e25 --> e26
+[*] --> e8
+e11 --> e12 : [chọn thống kê khách hàng]
+e16 --> e17 : [click khách hàng]
+e20 --> e21 : [click hóa đơn]
+e14 --> e27
+e27 --> e15 : [lấy xong dữ liệu]
+e18 --> e28
+e28 --> e19 : [lấy xong dữ liệu]
+e22 --> e23 : [hóa đơn phù hợp]
+e24 --> e29
+e29 --> e25 : [lấy xong dữ liệu]
+e16 --> e13 : [đổi khoảng ngày]
+e20 --> e16 : [quay lại thống kê]
+e26 --> e20 : [quay lại lịch sử]
+e26 --> [*] : [kết thúc xem]
+e9 --> e10 : [click Thống kê/Báo cáo]
+@enduml

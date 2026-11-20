@@ -1,0 +1,22 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SMed474729ea8d2d
+title 04. M1 - Use case chi tiết tìm kiếm mặt hàng
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+left to right direction
+actor "Member4\n(Thành viên)" as e1
+actor "Customer4\n(Khách hàng)" as e2
+rectangle "ShopMan - Search Product Module" as e6 {
+  usecase "Login4\n(Đăng nhập)" as e3
+  usecase "SearchProduct4\n(Tìm kiếm mặt hàng)" as e4
+  usecase "ViewProductDetail4\n(Xem chi tiết mặt hàng)" as e5
+}
+e1 -- e3
+e2 -- e4
+e1 <|-- e2
+e4 ..> e3 : <<include>>
+e4 <.. e5 : <<extend>>
+@enduml

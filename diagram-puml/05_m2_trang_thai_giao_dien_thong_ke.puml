@@ -1,0 +1,21 @@
+@startuml
+' Exported directly from diagram-puml/ShopMan - So do xanh duong.vpp
+' Visual Paradigm diagram ID: SM4acd994a6fd64c
+title 07. M2 - Trạng thái giao diện thống kê
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+state "Hiển thị GD chính QL" as e1
+state "Hiển thị GD chọn loại\nthống kê" as e2
+state "Hiển thị GD thống kê khách hàng\ntheo doanh thu" as e3
+state "Hiển thị GD lịch sử\nmua hàng" as e4
+state "Hiển thị GD chi tiết\nhóa đơn" as e5
+[*] --> e1 : Bắt đầu
+e1 --> e2 : [chọn chức năng\nThống kê/Báo cáo]
+e2 --> e3 : [chọn thống kê doanh thu\ntheo khách hàng]
+e3 --> e3 : [nhập ngày bắt đầu,\nngày kết thúc\nvà chọn xem thống kê]
+e3 --> e4 : [chọn 1 khách hàng]
+e4 --> e5 : [chọn 1 đơn hàng]
+e5 --> [*] : [kết thúc xem chi tiết]
+@enduml

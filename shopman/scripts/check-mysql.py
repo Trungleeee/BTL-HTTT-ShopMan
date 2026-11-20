@@ -100,11 +100,17 @@ for customer in report['customers']:
     for order in history['orders']:
         invoice = context('/quan-ly/hoa-don/chi-tiet', dict(orderId=order['id'], customerId=customer['id'], **period))['data']
         assert 'error' not in invoice, invoice.get('error')
+        assert invoice['order'] == order, 'Invoice header must match the order saved by purchase history'
         assert sum(detail['quantity'] * detail['unitPrice'] for detail in invoice['details']) == order['totalAmount']
         assert invoice['order']['customer']['id'] == customer['id']
         invoice_count += 1
     invalid = context('/quan-ly/hoa-don/chi-tiet', dict(orderId=99999999, customerId=customer['id'], **period))['data']
     assert 'error' in invalid and 'details' not in invalid
+    if history['orders']:
+        selected_id = history['orders'][0]['id']
+        assert request('/quan-ly/hoa-don/chi-tiet', dict(orderId=selected_id, customerId=99999999, **period))[0] == 400
+        assert request('/quan-ly/hoa-don/chi-tiet', dict(orderId=selected_id, customerId=customer['id'],
+                       ngayBatDau='2026-09-02', ngayKetThuc=period['ngayKetThuc']))[0] == 400
 
 assert context(report_path)['data'] == {}, 'Returning to the filter without dates must start a new report'
 assert request('/api/session', dict(action='logout'))[0] == 200

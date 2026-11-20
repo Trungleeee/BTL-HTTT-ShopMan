@@ -23,7 +23,7 @@ public class ImportInvoiceDetail4 {
     public void setDetailCode(String detailCode) { this.detailCode = detailCode; }
 
     public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { if (quantity < 0) throw new IllegalArgumentException("quantity must be non-negative"); this.quantity = quantity; }
+    public void setQuantity(int quantity) { if (quantity <= 0) throw new IllegalArgumentException("quantity must be positive"); this.quantity = quantity; }
 
     public BigDecimal getImportPrice() { return importPrice; }
     public void setImportPrice(BigDecimal importPrice) { if (importPrice == null || importPrice.signum() < 0) throw new IllegalArgumentException("importPrice must be non-negative"); this.importPrice = importPrice; }

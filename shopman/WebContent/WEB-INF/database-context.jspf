@@ -68,15 +68,10 @@ try {
             String customerId = smChosen.get("customerId");
             if (customerId == null) throw new IllegalArgumentException();
             int id = Integer.parseInt(customerId);
-            // Customer must appear in the current revenue report, not an arbitrary submitted id.
-            CustomerRevenueStatistics4 selectedCustomer = null;
-            for (CustomerRevenueStatistics4 customer : new CustomerRevenueStatisticsDAO4().getCustomerRevenueStatistics(start, end)) {
-                if (customer.getId() == id) { selectedCustomer = customer; break; }
-            }
-            if (selectedCustomer == null) throw new IllegalArgumentException();
-            SalesOrder4[] orders = new SalesOrderDAO4().getOrdersByCustomer(id, start, end);
-            smData.put("customer", smCustomer(selectedCustomer));
             if ("purchaseHistory".equals(smName)) {
+                SalesOrder4[] orders = new SalesOrderDAO4().getOrdersByCustomer(id, start, end);
+                if (orders.length == 0) throw new IllegalArgumentException();
+                smData.put("customer", smCustomer(orders[0].getCustomer()));
                 List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
                 for (SalesOrder4 order : orders) rows.add(smOrder(order));
                 smData.put("orders", rows);
@@ -86,12 +81,16 @@ try {
                 String orderId = smChosen.get("orderId");
                 String period = customerId + ":" + start + ":" + end;
                 SalesOrder4[] cached = (SalesOrder4[]) smSession.getAttribute("shopman.historyOrders");
-                boolean allowed = false;
-                if (orderId != null && cached != null && period.equals(smSession.getAttribute("shopman.historyPeriod"))) {
-                    for (SalesOrder4 order : cached) if (order.getId() == Integer.parseInt(orderId)) allowed = true;
-                }
                 SalesOrder4 selectedOrder = null;
-                if (allowed) for (SalesOrder4 order : orders) if (order.getId() == Integer.parseInt(orderId)) selectedOrder = order;
+                if (orderId != null && cached != null && period.equals(smSession.getAttribute("shopman.historyPeriod"))) {
+                    int selectedId = Integer.parseInt(orderId);
+                    for (SalesOrder4 order : cached) {
+                        if (order.getId() == selectedId && order.getCustomer().getId() == id) {
+                            selectedOrder = order;
+                            break;
+                        }
+                    }
+                }
                 if (selectedOrder == null) throw new IllegalArgumentException();
                 List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
                 for (SalesOrderDetail4 detail : new SalesOrderDetailDAO4().getOrderDetails(selectedOrder.getId())) {

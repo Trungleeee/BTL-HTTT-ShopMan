@@ -32,7 +32,7 @@ class CustomerHomeView4 {
 
 class ProductSearchView4 {
     - inKeyword
-    - inSortOrder
+    - inSort
     - outProductList
     - outMessage
     - subSearch
